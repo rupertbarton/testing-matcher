@@ -11,5 +11,8 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch"
+  },
+  "jest": {
+    "testURL": "http://localhost/"
   }
 }
