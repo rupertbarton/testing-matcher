@@ -22,6 +22,7 @@ Contains empty matcher and unit test file.
 * Change to the ```server``` directory within this project
 * Run ```npm install``` to install the server-side dependencies
 * Run ```npm test``` to run the unit tests
+* Run ```npm test:watch``` to re-run unit tests each time files are changed 
 
 ##### Directory Structure
 ```
