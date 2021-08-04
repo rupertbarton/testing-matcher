@@ -3,10 +3,7 @@ The starting point for the bitcoin-exchange project, containing individual clien
 Each application has their own package.json, to prevent cross-pollination of dependencies between client and server-side.
 
 ##### Client
-Contains
-
-* Sample Redux / React application based on the create-react-app seed framework.
-* Mockup wireframe to build a sample UI before implementation.
+Contains a sample Redux / React application based on the create-react-app seed framework.
 
 ###### Setup Instructions
 * Open your CLI
@@ -32,20 +29,22 @@ Contains empty matcher and unit test file.
 │   │   ├── public
 │   │   │   ├── favicon.ico - default React favicon
 │   │   │   ├── index.html - page template
-│   │   │   ├── mockup.html - empty mockup wireframe
 │   │   ├── src
-│   │   │   ├── components
-|   │   │   │   ├── App.css - CSS specific to the App component
-|   │   │   │   ├── App.js - main component for the app
-|   │   │   │   ├── App.test.js - tests specific to the App component
-│   │   │   ├── reducers
-|   │   │   │   ├── ducks
-|   |   │   │   │   ├── example.js - an example 'duck' which contains a related action type, reducer and action creator
-|   │   │   │   ├── root.js - root reducer that is a combination of all the other reducers
-│   │   │   ├── store
-|   │   │   │   ├── configure-store.js - code to configure the Redux store
+│   │   │   ├── app
+|   │   │   │   ├── hooks.ts - Store related hooks used throughout components
+|   │   │   │   ├── store.ts - Root-level application store
+│   │   │   ├── features
+|   │   │   │   ├── counter
+|   │   │   │   │   ├── Counter.module.css - Counter styles (css modules)
+|   │   │   │   │   ├── Counter.tsx - Counter component
+|   │   │   │   │   ├── counterAPI.ts - Mock example of counter component calling API endpoint
+|   │   │   │   │   ├── counterSlice.spec.ts - Counter store tests
+|   │   │   │   │   ├── counterSlice.ts - Slice of redux store dedicated to counter
+│   │   │   ├── **App**.css - CSS specific to the App component
+│   │   │   ├── App.tsx - main component for the app
+│   │   │   ├── App.test.tsx - tests specific to the App component
 │   │   │   ├── index.css - application-wide styles
-│   │   │   ├── index.js - JavaScript entry point
+│   │   │   ├── index.tsx - JavaScript entry point
 │   │   │   ├── logo.svg - default React logo
 │   |   ├── .gitignore - specifies intentionally untracked files that Git should ignore
 │   │   ├── package.json - metadata relevant to the client application, used by npm to manage application dependencies
