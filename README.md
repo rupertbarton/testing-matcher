@@ -40,7 +40,7 @@ Contains empty matcher and unit test file.
 |   │   │   │   │   ├── counterAPI.ts - Mock example of counter component calling API endpoint
 |   │   │   │   │   ├── counterSlice.spec.ts - Counter store tests
 |   │   │   │   │   ├── counterSlice.ts - Slice of redux store dedicated to counter
-│   │   │   ├── **App**.css - CSS specific to the App component
+│   │   │   ├── App.css - CSS specific to the App component
 │   │   │   ├── App.tsx - main component for the app
 │   │   │   ├── App.test.tsx - tests specific to the App component
 │   │   │   ├── index.css - application-wide styles
