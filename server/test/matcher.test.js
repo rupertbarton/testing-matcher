@@ -123,6 +123,9 @@ describe("Matcher", () => {
     newOrder = matcher.createOrder("Elliott", matcher.buy, 100, 5);
     matcher.processOrder(newOrder);
     expect(matcher.accountList.Elliott.GBP).toBe(100000 - 500);
+    newOrder = matcher.createOrder("Elliott", matcher.sell, 100, 5);
+    matcher.processOrder(newOrder);
+    expect(matcher.accountList.Elliott.BTC).toBe(100000 - 100);
   });
 
   test("Balances still add up after many orders", () => {
