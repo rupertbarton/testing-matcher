@@ -23,12 +23,7 @@ describe("Matcher", () => {
 
   test("Top up GBP", () => {
     matcher.topUpGBP("Andrea", 10);
-    expect(matcher.accountList[0].GBP).toBe(20);
-  });
-
-  test("action inverter", () => {
-    let inverse = matcher.inverse("Sell");
-    expect(inverse).toBe("Buy");
+    expect(matcher.accountList.Andrea.GBP).toBe(20);
   });
 
   test("Create an order", () => {
@@ -70,7 +65,7 @@ describe("Matcher", () => {
     matcher.processOrder(sellOrder);
     let buyOrder = matcher.createOrder("Elliott", matcher.buy, 10, 5);
     matcher.processOrder(buyOrder);
-    expect(matcher.pastTrades[0]?.volume).toBe(10);
+    expect(matcher.tradeHistory[0]?.volume).toBe(10);
   });
 
   test("Handles large volume of sell orders, maintains correct sorting", () => {

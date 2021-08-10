@@ -2,44 +2,30 @@ function Matcher() {
   this.buy = "Buy";
   this.sell = "Sell";
 
-  this.inverse = function (action) {
-    let inverseAction;
-    inverseAction =
-      action === this.buy
-        ? this.sell
-        : action === this.sell
-        ? this.buy
-        : undefined;
-    return inverseAction;
-  };
-
   this.buyOrders = [];
   this.sellOrders = [];
-  this.pastTrades = [];
-  this.accountList = [];
+  this.tradeHistory = [];
+  this.accountList = {};
 
   this.addAccount = function (username, startingGBP = 10, startingBTC = 0) {
     this.validateNewUsername(username);
     this.validateCurrencyAmount(startingGBP);
     this.validateCurrencyAmount(startingBTC);
-    newAccount = {
+    this.accountList[username] = {
       username,
       GBP: startingGBP,
       BTC: startingBTC,
     };
-    this.accountList.push(newAccount);
   };
 
   this.topUpGBP = function (username, amount) {
+    this.validateExistingUsername;
     this.validateCurrencyAmount(amount);
-    let accountIndex = this.accountList.findIndex(
-      (account) => account.username === username
-    );
-    this.accountList[accountIndex].GBP += amount;
+    this.accountList[username].GBP += amount;
   };
 
   this.validateNewUsername = function (username) {
-    if (this.accountList.find((account) => account.username === username)) {
+    if (username in this.accountList) {
       throw new Error("Username error: account already exists");
     } else if (typeof username !== "string") {
       throw new Error("Username error: must be string");
@@ -62,11 +48,9 @@ function Matcher() {
   };
 
   this.validateExistingUsername = function (username) {
-    let valid = this.accountList.find(
-      (account) => account.username === username
-    );
+    let valid = username in this.accountList;
 
-    if (valid === undefined) {
+    if (valid === false) {
       throw new Error("Account error: account does not exist");
     } else {
       return true;
@@ -115,6 +99,9 @@ function Matcher() {
     this.validateExistingUsername(trade.seller);
     this.validateVolume(trade.volume);
     this.validatePrice(trade.price);
+    if (trade.buyer === trade.seller) {
+      throw new Error("Error: cannot trade with yourself");
+    }
   };
 
   this.createOrder = function (username, action, volume, price) {
@@ -188,8 +175,11 @@ function Matcher() {
       if (newOrder.price < this.sellOrders[i].price) {
         break;
       }
+      if (newOrder.username === this.sellOrders[i].username) {
+        continue;
+      }
       let newTrade = this.createTrade(newOrder, this.sellOrders[i]);
-      this.pastTrades.push(newTrade);
+      this.tradeHistory.push(newTrade);
       this.sellOrders[i].volume += -newTrade.volume;
       newOrder.volume += -newTrade.volume;
     }
@@ -207,7 +197,7 @@ function Matcher() {
         break;
       }
       let newTrade = this.createTrade(newOrder, this.buyOrders[i]);
-      this.pastTrades.push(newTrade);
+      this.tradeHistory.push(newTrade);
       this.buyOrders[i].volume += -newTrade.volume;
       newOrder.volume += -newTrade.volume;
     }
