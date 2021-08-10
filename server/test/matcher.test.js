@@ -152,7 +152,7 @@ describe("Matcher", () => {
     createOrders(matcher, matcher.buy, 3);
     console.log(matcher.tradeHistory.length);
     let finalBalance = sumBalance(matcher, "GBP");
-    expect(initialBalance).toBe(finalBalance);
+    expect(finalBalance - initialBalance < 0.001).toBe(true);
   });
 });
 
