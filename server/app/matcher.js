@@ -1,5 +1,231 @@
 function Matcher() {
-    throw new Error("not implemented");
+  this.buy = "Buy";
+  this.sell = "Sell";
+
+  this.inverse = function (action) {
+    let inverseAction;
+    inverseAction =
+      action === this.buy
+        ? this.sell
+        : action === this.sell
+        ? this.buy
+        : undefined;
+    return inverseAction;
+  };
+
+  this.buyOrders = [];
+  this.sellOrders = [];
+  this.pastTrades = [];
+  this.accountList = [];
+
+  this.addAccount = function (username, startingGBP = 10, startingBTC = 0) {
+    this.validateNewUsername(username);
+    this.validateCurrencyAmount(startingGBP);
+    this.validateCurrencyAmount(startingBTC);
+    newAccount = {
+      username,
+      GBP: startingGBP,
+      BTC: startingBTC,
+    };
+    this.accountList.push(newAccount);
+  };
+
+  this.topUpGBP = function (username, amount) {
+    this.validateCurrencyAmount(amount);
+    let accountIndex = this.accountList.findIndex(
+      (account) => account.username === username
+    );
+    this.accountList[accountIndex].GBP += amount;
+  };
+
+  this.validateNewUsername = function (username) {
+    if (this.accountList.find((account) => account.username === username)) {
+      throw new Error("Username error: account already exists");
+    } else if (typeof username !== "string") {
+      throw new Error("Username error: must be string");
+    } else if (username === "") {
+      throw new Error("Username error: username field must not be empty");
+    } else if (username.length > 15) {
+      throw new Error("Username error: maximum length 15 characters");
+    }
+  };
+
+  this.validateCurrencyAmount = function (amount) {
+    if (typeof amount !== "number") {
+      throw new Error("Amount error: must be a number");
+    }
+    if (amount < 0) {
+      throw new Error("Amount error: must be positive");
+    } else {
+      return true;
+    }
+  };
+
+  this.validateExistingUsername = function (username) {
+    let valid = this.accountList.find(
+      (account) => account.username === username
+    );
+
+    if (valid === undefined) {
+      throw new Error("Account error: account does not exist");
+    } else {
+      return true;
+    }
+  };
+
+  this.validateAction = function (action) {
+    if (action !== this.buy && action !== this.sell) {
+      throw new Error("Action error: must be Buy or Sell");
+    } else {
+      return true;
+    }
+  };
+
+  this.validateVolume = function (volume) {
+    if (typeof volume !== "number") {
+      throw new Error("Volume error: must be a number");
+    }
+    if (volume <= 0) {
+      throw new Error("Volume error: must be positive");
+    } else {
+      return true;
+    }
+  };
+
+  this.validatePrice = function (price) {
+    if (typeof price !== "number") {
+      throw new Error("Price error: must be a number");
+    }
+    if (price <= 0) {
+      throw new Error("Price error: must be positive");
+    } else {
+      return true;
+    }
+  };
+
+  this.validateOrder = function (order) {
+    this.validateExistingUsername(order.username);
+    this.validateAction(order.action);
+    this.validateVolume(order.volume);
+    this.validatePrice(order.price);
+  };
+
+  this.validateTrade = function (trade) {
+    this.validateExistingUsername(trade.buyer);
+    this.validateExistingUsername(trade.seller);
+    this.validateVolume(trade.volume);
+    this.validatePrice(trade.price);
+  };
+
+  this.createOrder = function (username, action, volume, price) {
+    let order = {
+      action,
+      username,
+      volume,
+      price,
+      timestamp: new Date(),
+    };
+    order["id"] = order.username + order.timestamp.toISOString();
+    this.validateOrder(order);
+    return order;
+  };
+
+  this.createTrade = function (buyOrder, sellOrder) {
+    let buyVolume = buyOrder.volume;
+    let sellVolume = sellOrder.volume;
+    let volume = buyVolume <= sellVolume ? buyVolume : sellVolume;
+
+    let newTrade = {
+      buyer: buyOrder.username,
+      seller: sellOrder.username,
+      volume,
+      price: sellOrder.price,
+      timestamp: new Date(),
+      id: buyOrder.id + sellOrder.id,
+    };
+    this.validateTrade(newTrade);
+    return newTrade;
+  };
+
+  this.pushOrder = function (order) {
+    this.validateOrder(order);
+    if (order.action === this.buy) {
+      this.buyOrders.push(order);
+    } else if (order.action === this.sell) {
+      this.sellOrders.push(order);
+    }
+  };
+
+  this.sortBuyOrders = function () {
+    this.buyOrders = this.buyOrders.filter((order) => order.volume > 0);
+    this.buyOrders.sort(function (order1, order2) {
+      pricediff = order2.price - order1.price;
+      if (pricediff !== 0) {
+        return pricediff;
+      } else {
+        timediff = order1.timestamp - order2.timestamp;
+        return timediff;
+      }
+    });
+  };
+
+  this.sortSellOrders = function () {
+    this.sellOrders = this.sellOrders.filter((order) => order.volume > 0);
+    this.sellOrders.sort(function (order1, order2) {
+      pricediff = order1.price - order2.price;
+      if (pricediff !== 0) {
+        return pricediff;
+      } else {
+        timediff = order1.timestamp - order2.timestamp;
+        return timediff;
+      }
+    });
+  };
+
+  this.processBuy = function (newOrder) {
+    this.sortSellOrders();
+    for (let i = 0; i < this.sellOrders.length; i++) {
+      if (newOrder.price < this.sellOrders[i].price) {
+        break;
+      }
+      let newTrade = this.createTrade(newOrder, this.sellOrders[i]);
+      this.pastTrades.push(newTrade);
+      this.sellOrders[i].volume += -newTrade.volume;
+      newOrder.volume += -newTrade.volume;
+    }
+    if (newOrder.volume > 0) {
+      this.pushOrder(newOrder);
+      this.sortBuyOrders();
+    }
+    this.sortSellOrders();
+  };
+
+  this.processSell = function (newOrder) {
+    this.sortBuyOrders();
+    for (let i = 0; i < this.buyOrders.length; i++) {
+      if (newOrder.price > this.buyOrders[i].price) {
+        break;
+      }
+      let newTrade = this.createTrade(newOrder, this.buyOrders[i]);
+      this.pastTrades.push(newTrade);
+      this.buyOrders[i].volume += -newTrade.volume;
+      newOrder.volume += -newTrade.volume;
+    }
+    if (newOrder.volume > 0) {
+      this.pushOrder(newOrder);
+      this.sortSellOrders();
+    }
+    this.sortBuyOrders();
+  };
+
+  this.processOrder = function (newOrder) {
+    this.validateOrder(newOrder);
+    if (newOrder.action === this.buy) {
+      this.processBuy(newOrder);
+    } else if (newOrder.action === this.sell) {
+      this.processSell(newOrder);
+    }
+  };
 }
 
 module.exports = Matcher;
