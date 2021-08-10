@@ -19,16 +19,24 @@ function Matcher() {
     };
   };
 
-  this.topUpGBP = function (username, amount) {
-    this.validateExistingUsername;
+  this.topUp = function (username, amount, currency) {
+    this.validateExistingUsername(username);
     this.validateCurrencyAmount(amount);
-    this.accountList[username].GBP += amount;
+    this.accountList[username][currency] += amount;
   };
 
-  this.topUpBTC = function (username, amount) {
-    this.validateExistingUsername;
+  this.withdraw = function (username, amount, currency) {
+    this.validateExistingUsername(username);
     this.validateCurrencyAmount(amount);
-    this.accountList[username].BTC += amount;
+    if (currency === "GBP") {
+      this.checkBalanceGBP(username, amount);
+      this.accountList[username][currency] -= amount;
+    } else if (currency === "BTC") {
+      this.checkBalanceBTC(username, amount);
+      this.accountList[username][currency] -= amount;
+    } else {
+      throw new Error("Error: invalid currency (use GBP or BTC)");
+    }
   };
 
   //Lots of validation checks

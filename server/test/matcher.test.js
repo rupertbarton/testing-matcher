@@ -5,7 +5,7 @@ describe("Matcher", () => {
 
   beforeEach(() => {
     matcher = new Matcher();
-    users = ["Andrea", "Bob", "Catherine", "Doug", "Elliott"];
+    let users = ["Andrea", "Bob", "Catherine", "Doug", "Elliott"];
     for (let username of users) {
       matcher.addAccount(username, 100000, 100000);
     }
@@ -22,13 +22,21 @@ describe("Matcher", () => {
   });
 
   test("Top up GBP", () => {
-    matcher.topUpGBP("Andrea", 10);
+    matcher.topUp("Andrea", 10, "GBP");
     expect(matcher.accountList.Andrea.GBP).toBe(100010);
   });
 
   test("Top up BTC", () => {
-    matcher.topUpBTC("Andrea", 10);
+    matcher.topUp("Andrea", 10, "BTC");
     expect(matcher.accountList.Andrea.BTC).toBe(100010);
+  });
+
+  test("Withdraw GBP", () => {
+    matcher.withdraw("Andrea", 10, "GBP");
+    expect(matcher.accountList.Andrea.GBP).toBe(100000 - 10);
+    expect(() => {
+      matcher.withdraw("Andrea", 100000, "GBP");
+    }).toThrow("Transaction error: insufficient balance (GBP)");
   });
 
   test("Create an order", () => {
@@ -120,7 +128,7 @@ describe("Matcher", () => {
   });
 
   test("Balance is correctly subtracted when placing order", () => {
-    newOrder = matcher.createOrder("Elliott", matcher.buy, 100, 5);
+    let newOrder = matcher.createOrder("Elliott", matcher.buy, 100, 5);
     matcher.processOrder(newOrder);
     expect(matcher.accountList.Elliott.GBP).toBe(100000 - 500);
     newOrder = matcher.createOrder("Elliott", matcher.sell, 100, 5);
@@ -130,9 +138,18 @@ describe("Matcher", () => {
 
   test("Balances still add up after many orders", () => {
     let initialBalance = sumBalance(matcher, "GBP");
-    console.log(initialBalance);
     createOrders(matcher, matcher.sell, 2);
     createOrders(matcher, matcher.buy, 2);
+    let finalBalance = sumBalance(matcher, "GBP");
+    expect(initialBalance).toBe(finalBalance);
+  });
+
+  test("Balances still add up after many non-integer orders", () => {
+    //Currently doesn't work, we get rounding errors.
+    //This could lead to additional, tiny trades going through.
+    let initialBalance = sumBalance(matcher, "GBP");
+    createOrders(matcher, matcher.sell, 3);
+    createOrders(matcher, matcher.buy, 3);
     console.log(matcher.tradeHistory.length);
     let finalBalance = sumBalance(matcher, "GBP");
     expect(initialBalance).toBe(finalBalance);
@@ -166,6 +183,19 @@ function createOrders(matcher, action, testcase = 1) {
       );
       matcher.processOrder(newOrder);
     }
+  } else if (testcase == 3) {
+    let accounts = ["Andrea", "Bob", "Catherine", "Doug", "Andrea", "Elliott"];
+    let prices = [5, 0.00001, 20, 10, 25];
+    let volumes = [0.5, 10.001, 150, 20.2];
+    for (let i = 0; i < 150; i++) {
+      let newOrder = matcher.createOrder(
+        accounts[i % 6],
+        action,
+        volumes[i % 4],
+        prices[i % 5]
+      );
+      matcher.processOrder(newOrder);
+    }
   }
 }
 
@@ -176,7 +206,7 @@ function sumBalance(matcher, currency) {
   }
   if (currency === "GBP") {
     for (i = 0; i < matcher.buyOrders.length; i++) {
-      orderValue = matcher.buyOrders[i].volume * matcher.buyOrders[i].price;
+      let orderValue = matcher.buyOrders[i].volume * matcher.buyOrders[i].price;
       accountTotal += orderValue;
     }
   } else if (currency === "BTC") {
