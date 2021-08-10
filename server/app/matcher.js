@@ -7,6 +7,7 @@ function Matcher() {
   this.tradeHistory = [];
   this.accountList = {};
 
+  //Account set up
   this.addAccount = function (username, startingGBP = 10, startingBTC = 0) {
     this.validateNewUsername(username);
     this.validateCurrencyAmount(startingGBP);
@@ -30,6 +31,7 @@ function Matcher() {
     this.accountList[username].BTC += amount;
   };
 
+  //Lots of validation checks
   this.validateNewUsername = function (username) {
     if (username in this.accountList) {
       throw new Error("Username error: account already exists");
@@ -122,6 +124,7 @@ function Matcher() {
     }
   };
 
+  //main matcher functions
   this.createOrder = function (username, action, volume, price) {
     let order = {
       action,
@@ -209,9 +212,9 @@ function Matcher() {
       let newTrade = this.createTrade(newOrder, this.sellOrders[i]);
       this.tradeHistory.push(newTrade);
       this.creditAccounts(newTrade, newOrder);
-      this.sellOrders[i].volume += -newTrade.volume;
-      newOrder.volume += -newTrade.volume;
-      if (newOrder.volume <= 0) {
+      this.sellOrders[i].volume -= newTrade.volume;
+      newOrder.volume -= newTrade.volume;
+      if (newOrder.volume === 0) {
         break;
       }
     }
@@ -228,16 +231,20 @@ function Matcher() {
       if (newOrder.price > this.buyOrders[i].price) {
         break;
       }
+      if (newOrder.username === this.buyOrders[i].username) {
+        continue;
+      }
       let newTrade = this.createTrade(newOrder, this.buyOrders[i]);
       this.tradeHistory.push(newTrade);
       this.creditAccounts(newTrade, this.buyOrders[i]);
-      this.buyOrders[i].volume += -newTrade.volume;
-      newOrder.volume += -newTrade.volume;
-      if (newOrder.volume <= 0) {
+      this.buyOrders[i].volume -= newTrade.volume;
+      newOrder.volume -= newTrade.volume;
+      if (newOrder.volume === 0) {
         break;
       }
     }
     if (newOrder.volume > 0) {
+      this.validateOrder(newOrder);
       this.pushOrder(newOrder);
       this.sortSellOrders();
     }
@@ -249,10 +256,10 @@ function Matcher() {
     if (newOrder.action === this.buy) {
       let amountGBP = newOrder.volume * newOrder.price;
       this.checkBalanceGBP(newOrder.username, amountGBP);
-      this.accountList[newOrder.username].GBP += -amountGBP;
+      this.accountList[newOrder.username].GBP -= amountGBP;
     } else if (newOrder.action === this.sell) {
       this.checkBalanceBTC(newOrder.username, newOrder.volume);
-      this.accountList[newOrder.username].BTC += -newOrder.volume;
+      this.accountList[newOrder.username].BTC -= newOrder.volume;
     }
     if (newOrder.action === this.buy) {
       this.processBuy(newOrder);
