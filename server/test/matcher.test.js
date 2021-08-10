@@ -7,7 +7,7 @@ describe("Matcher", () => {
     matcher = new Matcher();
     users = ["Andrea", "Bob", "Catherine", "Doug", "Elliott"];
     for (let username of users) {
-      matcher.addAccount(username);
+      matcher.addAccount(username, 100000, 100000);
     }
   });
 
@@ -23,11 +23,17 @@ describe("Matcher", () => {
 
   test("Top up GBP", () => {
     matcher.topUpGBP("Andrea", 10);
-    expect(matcher.accountList.Andrea.GBP).toBe(20);
+    expect(matcher.accountList.Andrea.GBP).toBe(100010);
+  });
+
+  test("Top up BTC", () => {
+    matcher.topUpBTC("Andrea", 10);
+    expect(matcher.accountList.Andrea.BTC).toBe(100010);
   });
 
   test("Create an order", () => {
     let newOrder = matcher.createOrder("Andrea", matcher.buy, 1, 1);
+    expect(newOrder.price).toBe(1);
   });
 
   test("Create and sort sell order list", () => {
@@ -100,6 +106,34 @@ describe("Matcher", () => {
       matcher.createOrder("Andrea", matcher.buy, 5, 0);
     }).toThrow("Price error: must be positive");
   });
+
+  test("Check balance before placing order", () => {
+    matcher.addAccount("Frank", 10, 10);
+    buyOrder = matcher.createOrder("Frank", matcher.buy, 5, 5);
+    sellOrder = matcher.createOrder("Frank", matcher.sell, 20, 5);
+    expect(() => {
+      matcher.processOrder(buyOrder);
+    }).toThrow("Transaction error: insufficient balance (GBP)");
+    expect(() => {
+      matcher.processOrder(sellOrder);
+    }).toThrow("Transaction error: insufficient balance (BTC)");
+  });
+
+  test("Balance is correctly subtracted when placing order", () => {
+    newOrder = matcher.createOrder("Elliott", matcher.buy, 100, 5);
+    matcher.processOrder(newOrder);
+    expect(matcher.accountList.Elliott.GBP).toBe(100000 - 500);
+  });
+
+  test("Balances still add up after many orders", () => {
+    let initialBalance = sumBalance(matcher, "GBP");
+    console.log(initialBalance);
+    createOrders(matcher, matcher.sell, 2);
+    createOrders(matcher, matcher.buy, 2);
+    console.log(matcher.tradeHistory.length);
+    let finalBalance = sumBalance(matcher, "GBP");
+    expect(initialBalance).toBe(finalBalance);
+  });
 });
 
 function createOrders(matcher, action, testcase = 1) {
@@ -130,4 +164,22 @@ function createOrders(matcher, action, testcase = 1) {
       matcher.processOrder(newOrder);
     }
   }
+}
+
+function sumBalance(matcher, currency) {
+  let accountTotal = 0;
+  for (username in matcher.accountList) {
+    accountTotal += matcher.accountList[username][currency];
+  }
+  if (currency === "GBP") {
+    for (i = 0; i < matcher.buyOrders.length; i++) {
+      orderValue = matcher.buyOrders[i].volume * matcher.buyOrders[i].price;
+      accountTotal += orderValue;
+    }
+  } else if (currency === "BTC") {
+    for (i = 0; i < matcher.sellOrders.length; i++) {
+      accountTotal += matcher.sellOrders[i].volume;
+    }
+  }
+  return accountTotal;
 }
