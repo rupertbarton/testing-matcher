@@ -1,17 +1,37 @@
 function Matcher() {
+  //add const file?
   this.buy = "Buy";
   this.sell = "Sell";
+
+  this.throwErrors = false;
+  this.errorMessages = false;
 
   this.buyOrders = [];
   this.sellOrders = [];
   this.tradeHistory = [];
   this.accountList = {};
 
+  // Utilities
   this.round = function (value) {
     let decimalPlaces = 6;
     value *= 10 ** decimalPlaces;
     rounded = Math.round(value);
     return rounded / 10 ** decimalPlaces;
+  };
+
+  this.announceError = function (err) {
+    //How should I inform someone about the error message?
+    if (this.errorMessages === true) {
+      console.log(
+        "The trading system has encountered a problem and has had to close.\n\
+    If you were in the middle of a trade, and remaining value in your order will have been refunded.\n\
+    Error message follows:"
+      );
+      console.log(err);
+    }
+    if (this.throwErrors) {
+      throw new Error(err);
+    }
   };
 
   this.equalZero = function (value) {
@@ -32,39 +52,113 @@ function Matcher() {
     }
   };
 
-  //Account set up
+  this.roundBalance = function (username) {
+    try {
+      this.validateExistingUsername(username);
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
+    this.accountList[username].GBP = this.round(this.accountList[username].GBP);
+    this.accountList[username].BTC = this.round(this.accountList[username].BTC);
+  };
+
+  // Account actions
   this.addAccount = function (username, startingGBP = 10, startingBTC = 0) {
-    this.validateNewUsername(username);
-    this.validateStartingAmount(startingGBP);
-    this.validateStartingAmount(startingBTC);
+    try {
+      this.validateNewUsername(username);
+      this.validateStartingAmount(startingGBP);
+      this.validateStartingAmount(startingBTC);
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
     this.accountList[username] = {
       username,
-      GBP: startingGBP,
-      BTC: startingBTC,
+      GBP: this.round(startingGBP),
+      BTC: this.round(startingBTC),
     };
   };
 
   this.topUp = function (username, amount, currency) {
-    this.validateExistingUsername(username);
-    this.validateCurrencyAmount(amount);
-    this.accountList[username][currency] += amount;
+    try {
+      this.validateExistingUsername(username);
+      this.validateCurrencyAmount(amount);
+      this.validateCurrency(currency);
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
+    this.accountList[username][currency] += this.round(amount);
   };
 
   this.withdraw = function (username, amount, currency) {
-    this.validateExistingUsername(username);
-    this.validateCurrencyAmount(amount);
+    try {
+      this.validateExistingUsername(username);
+      this.validateCurrencyAmount(amount);
+      this.validateCurrency(currency);
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
     if (currency === "GBP") {
-      this.checkBalanceGBP(username, amount);
-      this.accountList[username][currency] -= amount;
+      try {
+        this.checkBalanceGBP(username, amount);
+      } catch (err) {
+        this.announceError(err);
+        return undefined;
+      }
+      this.accountList[username][currency] -= this.round(amount);
     } else if (currency === "BTC") {
-      this.checkBalanceBTC(username, amount);
-      this.accountList[username][currency] -= amount;
-    } else {
-      throw new Error("Error: invalid currency (use GBP or BTC)");
+      try {
+        this.checkBalanceBTC(username, amount);
+      } catch (err) {
+        this.announceError(err);
+        return undefined;
+      }
+      this.accountList[username][currency] -= this.round(amount);
     }
   };
 
-  //Lots of validation checks
+  this.cancelOrder = function (id) {
+    let action;
+    try {
+      action = this.validateExistingOrderId(id);
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
+    if (action === this.buy) {
+      orderIndex = this.buyOrders.findIndex((order) => order.id === id);
+      this.refundOrder(this.buyOrders[orderIndex]);
+      this.buyOrders.splice(orderIndex, 1);
+    } else if (action === this.sell) {
+      orderIndex = this.sellOrders.findIndex((order) => order.id === id);
+      this.refundOrder(this.sellOrders[orderIndex]);
+      this.sellOrders.splice(orderIndex, 1);
+    }
+  };
+
+  this.cancelAllOrders = function (username) {
+    try {
+      this.validateExistingUsername(username);
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
+    myBuyOrders = this.buyOrders.filter((order) => order.username === username);
+    mySellOrders = this.sellOrders.filter(
+      (order) => order.username === username
+    );
+    for (let order of myBuyOrders) {
+      this.cancelOrder(order.id);
+    }
+    for (let order of mySellOrders) {
+      this.cancelOrder(order.id);
+    }
+  };
+
+  // Lots of validation checks
   this.validateNewUsername = function (username) {
     if (username in this.accountList) {
       throw new Error("Username error: account already exists");
@@ -100,6 +194,12 @@ function Matcher() {
     }
   };
 
+  this.validateCurrency = function (currency) {
+    if (currency !== "GBP" && currency !== "BTC") {
+      throw new Error("Error: invalid currency (use GBP or BTC)");
+    }
+  };
+
   this.validateExistingUsername = function (username) {
     let valid = username in this.accountList;
 
@@ -107,6 +207,22 @@ function Matcher() {
       throw new Error("Account error: account does not exist");
     } else {
       return true;
+    }
+  };
+
+  this.validateExistingOrderId = function (id) {
+    let action =
+      this.buyOrders.find((order) => order.id === id) != undefined
+        ? this.buy
+        : this.sellOrders.find((order) => order.id === id) != undefined
+        ? this.sell
+        : false;
+    if (typeof id !== "string") {
+      throw new Error("Order error: invalid order id (must be string)");
+    } else if (action === false) {
+      throw new Error("Order error: no active order with that id");
+    } else {
+      return action;
     }
   };
 
@@ -169,7 +285,7 @@ function Matcher() {
     }
   };
 
-  //main matcher functions
+  // Main matcher functions
   this.createOrder = function (username, action, volume, price) {
     let order = {
       action,
@@ -179,7 +295,12 @@ function Matcher() {
       timestamp: new Date(),
     };
     order["id"] = order.username + order.timestamp.toISOString();
-    this.validateOrder(order);
+    try {
+      this.validateOrder(order);
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
     return order;
   };
 
@@ -196,8 +317,16 @@ function Matcher() {
       timestamp: new Date(),
       id: buyOrder.id + sellOrder.id,
     };
-    //If validateTrade fails, we're in trouble: we've already taken people's money but won't post the order
-    this.validateTrade(newTrade);
+    /*//Manually break a trade, nobody should lose GBP or BTC
+    if (newTrade.buyer === "Elliott" && newTrade.seller === "Bob") {
+      newTrade.seller = "Elliott";
+    }*/
+    try {
+      this.validateTrade(newTrade);
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
     return newTrade;
   };
 
@@ -208,10 +337,27 @@ function Matcher() {
     this.accountList[newTrade.seller].GBP += this.round(amountPaid);
     this.accountList[newTrade.buyer].GBP += this.round(refund);
     this.accountList[newTrade.buyer].BTC += this.round(newTrade.volume);
+    this.roundBalance(newTrade.seller);
+    this.roundBalance(newTrade.buyer);
+  };
+
+  this.refundOrder = function (order) {
+    if (order.action === this.buy) {
+      orderValue = order.volume * order.price;
+      this.accountList[order.username].GBP += orderValue;
+    } else if (order.action === this.sell) {
+      this.accountList[order.username].BTC += order.volume;
+    }
+    this.roundBalance(order.username);
   };
 
   this.pushOrder = function (order) {
-    this.validateOrder(order);
+    try {
+      this.validateOrder(order);
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
     if (order.action === this.buy) {
       this.buyOrders.push(order);
     } else if (order.action === this.sell) {
@@ -258,19 +404,28 @@ function Matcher() {
       if (newOrder.username === this.sellOrders[i].username) {
         continue;
       }
-      let newTrade = this.createTrade(newOrder, this.sellOrders[i]);
-      this.tradeHistory.push(newTrade);
-      this.creditAccounts(newTrade, newOrder);
-      this.sellOrders[i].volume -= newTrade.volume;
-      newOrder.volume -= newTrade.volume;
+      try {
+        let newTrade = this.createTrade(newOrder, this.sellOrders[i]);
+        this.tradeHistory.push(newTrade);
+        this.creditAccounts(newTrade, newOrder);
+        this.sellOrders[i].volume -= newTrade.volume;
+        newOrder.volume -= newTrade.volume;
+      } catch (err) {
+        this.announceError(err);
+        continue;
+      }
+
       if (this.equalZero(newOrder.volume)) {
         break;
       }
     }
     if (this.equalZero(newOrder.volume) === false) {
-      this.validateOrder(newOrder);
-      this.pushOrder(newOrder);
-      this.sortBuyOrders();
+      try {
+        this.pushOrder(newOrder);
+      } catch (err) {
+        this.announceError(err);
+        this.refundOrder(newOrder);
+      }
     }
     this.sortSellOrders();
   };
@@ -284,32 +439,58 @@ function Matcher() {
       if (newOrder.username === this.buyOrders[i].username) {
         continue;
       }
-      let newTrade = this.createTrade(newOrder, this.buyOrders[i]);
-      this.tradeHistory.push(newTrade);
-      this.creditAccounts(newTrade, this.buyOrders[i]);
-      this.buyOrders[i].volume -= newTrade.volume;
-      newOrder.volume -= newTrade.volume;
+      try {
+        let newTrade = this.createTrade(newOrder, this.buyOrders[i]);
+        this.tradeHistory.push(newTrade);
+        this.creditAccounts(newTrade, this.buyOrders[i]);
+        this.buyOrders[i].volume -= newTrade.volume;
+        newOrder.volume -= newTrade.volume;
+      } catch (err) {
+        this.announceError(err);
+        continue;
+      }
+
       if (this.equalZero(newOrder.volume)) {
         break;
       }
     }
     if (this.equalZero(newOrder.volume) === false) {
-      this.validateOrder(newOrder);
-      this.pushOrder(newOrder);
+      try {
+        this.pushOrder(newOrder);
+      } catch (err) {
+        this.announceError(err);
+        this.refundOrder(newOrder);
+      }
       this.sortSellOrders();
     }
     this.sortBuyOrders();
   };
 
   this.processOrder = function (newOrder) {
-    this.validateOrder(newOrder);
+    try {
+      this.validateOrder(newOrder);
+    } catch (err) {
+      this.announceError(err);
+      return false;
+    }
     if (newOrder.action === this.buy) {
       let amountGBP = newOrder.volume * newOrder.price;
-      this.checkBalanceGBP(newOrder.username, amountGBP);
-      this.accountList[newOrder.username].GBP -= this.round(amountGBP);
+      try {
+        this.checkBalanceGBP(newOrder.username, amountGBP);
+      } catch (err) {
+        this.announceError(err);
+        return undefined;
+      }
+      this.accountList[newOrder.username].GBP -= amountGBP;
+      this.roundBalance(newOrder.username);
     } else if (newOrder.action === this.sell) {
-      this.checkBalanceBTC(newOrder.username, newOrder.volume);
-      this.accountList[newOrder.username].BTC -= this.round(newOrder.volume);
+      try {
+        this.checkBalanceBTC(newOrder.username, newOrder.volume);
+      } catch (err) {
+        this.announceError(err);
+        return undefined;
+      }
+      this.accountList[newOrder.username].BTC -= newOrder.volume;
     }
     if (newOrder.action === this.buy) {
       this.processBuy(newOrder);

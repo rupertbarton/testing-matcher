@@ -19,144 +19,210 @@ describe("Matcher", () => {
     expect(matcher.equalZero(0.00001)).toBe(true);
   });
 
-  test("Add account", () => {
-    expect(() => {
-      matcher.addAccount("Andrea");
-    }).toThrow("Username error: account already exists");
+  describe("Account features", () => {
+    test("Add account", () => {
+      matcher.throwErrors = true;
+      expect(() => {
+        matcher.addAccount("Andrea");
+      }).toThrow("Username error: account already exists");
+    });
+
+    test("Top up GBP", () => {
+      matcher.topUp("Andrea", 10, "GBP");
+      expect(matcher.accountList.Andrea.GBP).toBe(100010);
+    });
+
+    test("Top up BTC", () => {
+      matcher.topUp("Andrea", 10, "BTC");
+      expect(matcher.accountList.Andrea.BTC).toBe(100010);
+    });
+
+    test("Withdraw GBP", () => {
+      matcher.throwErrors = true;
+      matcher.withdraw("Andrea", 10, "GBP");
+      expect(matcher.accountList.Andrea.GBP).toBe(100000 - 10);
+      expect(() => {
+        matcher.withdraw("Andrea", 100000, "GBP");
+      }).toThrow("Transaction error: insufficient balance (GBP)");
+    });
   });
 
-  test("Top up GBP", () => {
-    matcher.topUp("Andrea", 10, "GBP");
-    expect(matcher.accountList.Andrea.GBP).toBe(100010);
-  });
+  describe("Create and process an order", () => {
+    test("Create a buy order", () => {
+      let newOrder = matcher.createOrder("Andrea", matcher.buy, 1, 1);
+      expect(newOrder.price).toBe(1);
+    });
 
-  test("Top up BTC", () => {
-    matcher.topUp("Andrea", 10, "BTC");
-    expect(matcher.accountList.Andrea.BTC).toBe(100010);
-  });
+    test("Create a sell order", () => {
+      let newOrder = matcher.createOrder("Andrea", matcher.sell, 1, 1);
+      expect(newOrder.price).toBe(1);
+    });
 
-  test("Withdraw GBP", () => {
-    matcher.withdraw("Andrea", 10, "GBP");
-    expect(matcher.accountList.Andrea.GBP).toBe(100000 - 10);
-    expect(() => {
-      matcher.withdraw("Andrea", 100000, "GBP");
-    }).toThrow("Transaction error: insufficient balance (GBP)");
-  });
-
-  test("Create an order", () => {
-    let newOrder = matcher.createOrder("Andrea", matcher.buy, 1, 1);
-    expect(newOrder.price).toBe(1);
-  });
-
-  test("Correctly processes first order", () => {
-    let sellOrder = matcher.createOrder("Elliott", matcher.sell, 10, 5);
-    matcher.processOrder(sellOrder);
-    expect(matcher.sellOrders[0]?.volume).toBe(10);
-  });
-
-  test("Correctly processes trade", () => {
-    let sellOrder = matcher.createOrder("Andrea", matcher.sell, 10, 5);
-    matcher.processOrder(sellOrder);
-    let buyOrder = matcher.createOrder("Elliott", matcher.buy, 10, 5);
-    matcher.processOrder(buyOrder);
-    expect(matcher.tradeHistory[0]?.volume).toBe(10);
-  });
-
-  test("Create and sort sell order list", () => {
-    createOrders(matcher, matcher.sell, 1);
-    matcher.sortSellOrders();
-    expect(matcher.sellOrders[3]?.price).toBe(20);
-  });
-
-  test("Generate a trade and push the remaining buy order to buyOrders", () => {
-    createOrders(matcher, matcher.sell, 1);
-    let buyOrder = matcher.createOrder("Elliott", matcher.buy, 10, 8);
-    matcher.processOrder(buyOrder);
-    expect(matcher.buyOrders[0]?.volume).toBe(3);
-    //console.log(matcher.sellOrders);
-    //console.log(matcher.buyOrders);
-  });
-
-  test("Generate a trade and push the remaining sell order to sellOrders", () => {
-    createOrders(matcher, matcher.buy, 1);
-    let sellOrder = matcher.createOrder("Elliott", matcher.sell, 23, 15);
-    matcher.processOrder(sellOrder);
-    expect(matcher.sellOrders[0]?.volume).toBe(3);
-    //console.log(matcher.sellOrders);
-    //console.log(matcher.buyOrders);
-  });
-
-  test("Handles large volume of sell orders, maintains correct sorting", () => {
-    createOrders(matcher, matcher.sell, 2);
-    expect(matcher.sellOrders[3]?.price).toBe(5);
-  });
-
-  test("Volume adds up", () => {
-    createOrders(matcher, matcher.sell, 1);
-    let buyOrder = matcher.createOrder("Elliott", matcher.buy, 100, 50);
-    matcher.processOrder(buyOrder);
-    expect(matcher.buyOrders[0].volume).toBe(100 - 37);
-  });
-
-  test("Order validation", () => {
-    expect(() => {
-      matcher.createOrder("Zoe", matcher.sell, 5, 10);
-    }).toThrow("Account error: account does not exist");
-    expect(() => {
-      matcher.createOrder("Andrea", "oopsie", 0.00001, 10);
-    }).toThrow("Action error: must be Buy or Sell");
-    expect(() => {
-      matcher.createOrder("Andrea", matcher.buy, "Bob", 10);
-    }).toThrow("Volume error: must be a number");
-    expect(() => {
-      matcher.createOrder("Andrea", matcher.buy, -5, 10);
-    }).toThrow("Volume error: must be positive");
-    expect(() => {
-      matcher.createOrder("Andrea", matcher.buy, 5, true);
-    }).toThrow("Price error: must be a number");
-    expect(() => {
-      matcher.createOrder("Andrea", matcher.buy, 5, 0);
-    }).toThrow("Price error: must be positive");
-  });
-
-  test("Check balance before placing order", () => {
-    matcher.addAccount("Frank", 10, 10);
-    buyOrder = matcher.createOrder("Frank", matcher.buy, 5, 5);
-    sellOrder = matcher.createOrder("Frank", matcher.sell, 20, 5);
-    expect(() => {
-      matcher.processOrder(buyOrder);
-    }).toThrow("Transaction error: insufficient balance (GBP)");
-    expect(() => {
+    test("Correctly processes first order", () => {
+      let sellOrder = matcher.createOrder("Elliott", matcher.sell, 10, 5);
       matcher.processOrder(sellOrder);
-    }).toThrow("Transaction error: insufficient balance (BTC)");
+      expect(matcher.sellOrders[0]?.volume).toBe(10);
+    });
+
+    test("Order validation", () => {
+      matcher.throwErrors = true;
+      expect(() => {
+        matcher.createOrder("Zoe", matcher.sell, 5, 10);
+      }).toThrow("Account error: account does not exist");
+      expect(() => {
+        matcher.createOrder("Andrea", "oopsie", 0.00001, 10);
+      }).toThrow("Action error: must be Buy or Sell");
+      expect(() => {
+        matcher.createOrder("Andrea", matcher.buy, "Bob", 10);
+      }).toThrow("Volume error: must be a number");
+      expect(() => {
+        matcher.createOrder("Andrea", matcher.buy, 5, true);
+      }).toThrow("Price error: must be a number");
+      expect(() => {
+        matcher.createOrder("Andrea", matcher.sell, -5, 10);
+      }).toThrow("Volume error: must be positive");
+      expect(() => {
+        matcher.createOrder("Andrea", matcher.buy, 5);
+      }).toThrow("Price error: must be a number");
+    });
+
+    test("Create and sort sell order list", () => {
+      createOrders(matcher, matcher.sell, 1);
+      matcher.sortSellOrders();
+      expect(matcher.sellOrders[3]?.price).toBe(20);
+    });
+
+    test("Create and sort buy order list", () => {
+      createOrders(matcher, matcher.buy, 1);
+      matcher.sortBuyOrders();
+      expect(matcher.buyOrders[3]?.price).toBe(5);
+    });
+
+    test("Request and process cancelled order", () => {
+      createOrders(matcher, matcher.sell, 1);
+      let orderid = matcher.sellOrders[0].id;
+      let user = matcher.sellOrders[0].username;
+      matcher.cancelOrder(orderid);
+      expect(matcher.accountList[user].BTC).toBe(100000);
+      newOrder = matcher.createOrder("Bob", matcher.buy, 100, 0.1);
+      matcher.processOrder(newOrder);
+      matcher.cancelOrder(newOrder.id);
+      expect(matcher.accountList.Bob.GBP).toBe(100000);
+      expect(matcher.buyOrders[0]).toBe(undefined);
+    });
+
+    test("Cancel and refund all orders", () => {
+      user = "Andrea";
+      for (let i = 0; i < 5; i++) {
+        let buyOrder = matcher.createOrder("Andrea", matcher.buy, 100, 50);
+        matcher.processOrder(buyOrder);
+        let sellOrder = matcher.createOrder("Andrea", matcher.sell, 100, 50);
+        matcher.processOrder(sellOrder);
+      }
+      expect(matcher.buyOrders.length).toBe(5);
+      matcher.cancelAllOrders("Andrea");
+      expect(matcher.buyOrders.length).toBe(0);
+      expect(matcher.accountList.Andrea.GBP).toBe(100000);
+    });
+
+    test("Check balance before placing order", () => {
+      matcher.throwErrors = true;
+      matcher.addAccount("Frank", 10, 10);
+      buyOrder = matcher.createOrder("Frank", matcher.buy, 5, 5);
+      sellOrder = matcher.createOrder("Frank", matcher.sell, 20, 5);
+      expect(() => {
+        matcher.processOrder(buyOrder);
+      }).toThrow("Transaction error: insufficient balance (GBP)");
+      expect(() => {
+        matcher.processOrder(sellOrder);
+      }).toThrow("Transaction error: insufficient balance (BTC)");
+    });
+
+    test("Balance is correctly subtracted when placing order", () => {
+      let newOrder = matcher.createOrder("Elliott", matcher.buy, 100, 5);
+      matcher.processOrder(newOrder);
+      expect(matcher.accountList.Elliott.GBP).toBe(100000 - 500);
+      newOrder = matcher.createOrder("Elliott", matcher.sell, 100, 5);
+      matcher.processOrder(newOrder);
+      expect(matcher.accountList.Elliott.BTC).toBe(100000 - 100);
+    });
   });
 
-  test("Balance is correctly subtracted when placing order", () => {
-    let newOrder = matcher.createOrder("Elliott", matcher.buy, 100, 5);
-    matcher.processOrder(newOrder);
-    expect(matcher.accountList.Elliott.GBP).toBe(100000 - 500);
-    newOrder = matcher.createOrder("Elliott", matcher.sell, 100, 5);
-    matcher.processOrder(newOrder);
-    expect(matcher.accountList.Elliott.BTC).toBe(100000 - 100);
+  describe("Match and make trades", () => {
+    test("Correctly processes trade", () => {
+      let sellOrder = matcher.createOrder("Andrea", matcher.sell, 10, 5);
+      matcher.processOrder(sellOrder);
+      let buyOrder = matcher.createOrder("Elliott", matcher.buy, 10, 5);
+      matcher.processOrder(buyOrder);
+      expect(matcher.tradeHistory[0]?.volume).toBe(10);
+    });
+
+    test("Generate a trade and push the remaining buy order to buyOrders", () => {
+      createOrders(matcher, matcher.sell, 1);
+      let buyOrder = matcher.createOrder("Elliott", matcher.buy, 10, 8);
+      matcher.processOrder(buyOrder);
+      let totalTradeVolume = 0;
+      for (trade of matcher.tradeHistory) {
+        totalTradeVolume += trade.volume;
+      }
+      expect(matcher.buyOrders[0]?.volume + totalTradeVolume).toBe(10);
+      //console.log(matcher.sellOrders);
+      //console.log(matcher.buyOrders);
+    });
+
+    test("Generate a trade and push the remaining sell order to sellOrders", () => {
+      createOrders(matcher, matcher.buy, 1);
+      let sellOrder = matcher.createOrder("Elliott", matcher.sell, 23, 15);
+      matcher.processOrder(sellOrder);
+      let totalTradeVolume = 0;
+      for (trade of matcher.tradeHistory) {
+        totalTradeVolume += trade.volume;
+      }
+      expect(matcher.sellOrders[0]?.volume + totalTradeVolume).toBe(23);
+      //console.log(matcher.sellOrders);
+      //console.log(matcher.buyOrders);
+    });
   });
 
-  test("Balances still add up after many orders", () => {
-    let initialBalance = sumBalance(matcher, "GBP");
-    createOrders(matcher, matcher.sell, 2);
-    createOrders(matcher, matcher.buy, 2);
-    let finalBalance = sumBalance(matcher, "GBP");
-    expect(initialBalance).toBe(finalBalance);
-  });
+  describe("Consistency after many orders", () => {
+    test("Handles large volume of sell orders, maintains correct sorting", () => {
+      createOrders(matcher, matcher.sell, 2);
+      expect(matcher.sellOrders[3]?.price).toBe(5);
+    });
 
-  test("Balances still add up after many non-integer orders", () => {
-    //Currently doesn't work, we get rounding errors.
-    //This could lead to additional, tiny trades going through.
-    let initialBalance = sumBalance(matcher, "GBP");
-    createOrders(matcher, matcher.sell, 3);
-    createOrders(matcher, matcher.buy, 3);
-    console.log(matcher.tradeHistory.length);
-    let finalBalance = sumBalance(matcher, "GBP");
-    expect(finalBalance).toBe(initialBalance);
+    test("Volume adds up", () => {
+      createOrders(matcher, matcher.sell, 1);
+      let buyOrder = matcher.createOrder("Elliott", matcher.buy, 100, 1);
+      matcher.processOrder(buyOrder);
+      expect(
+        matcher.buyOrders[0].volume + matcher.accountList.Elliott.BTC
+      ).toBe(100100);
+      expect(matcher.accountList.Elliott.GBP).toBe(99900);
+    });
+
+    test("Balances still add up after many orders", () => {
+      let initialBalance = sumBalance(matcher, "GBP");
+      createOrders(matcher, matcher.sell, 2);
+      createOrders(matcher, matcher.buy, 2);
+      let finalBalance = sumBalance(matcher, "GBP");
+      expect(initialBalance).toBe(finalBalance);
+    });
+
+    test("Balances still add up after many non-integer orders", () => {
+      //Will only display account balances to 4 decimal places, should avoid rounding errors
+      //(unless people are trading large amounts)
+      let initialBalance = sumBalance(matcher, "GBP");
+      createOrders(matcher, matcher.sell, 3);
+      createOrders(matcher, matcher.buy, 3);
+      let finalBalance = sumBalance(matcher, "GBP");
+      expect(finalBalance.toFixed(4)).toBe(initialBalance.toFixed(4));
+    });
+
+    test("Trading game", () => {
+      balances = makeTrades(matcher);
+      console.log(matcher.accountList);
+      expect(Math.abs(balances[1] - balances[0]) < 0.001).toBe(true);
+    });
   });
 });
 
@@ -219,4 +285,41 @@ function sumBalance(matcher, currency) {
     }
   }
   return accountTotal;
+}
+
+function makeTrades(matcher) {
+  let accounts = ["Andrea", "Bob", "Catherine", "Doug", "Elliott"];
+  for (let i = 0; i < accounts.length; i++) {
+    matcher.topUp(accounts[i], 50000 * i, "GBP");
+  }
+  let initialBalance = sumBalance(matcher, "GBP");
+  let baseprice = [5, 4, 3, 2, 1];
+  let volumes = [1000, 2000, 5000, 10000];
+  for (let i = 0; i < 300; i++) {
+    buyprice =
+      (baseprice[i % 5] * matcher.accountList[accounts[i % 5]].GBP) /
+      matcher.accountList[accounts[i % 5]].BTC;
+    let buyOrder = matcher.createOrder(
+      i % 5 === 4 ? "Frank" : accounts[i % 5],
+      matcher.buy,
+      volumes[i % 4],
+      buyprice
+    );
+    matcher.processOrder(buyOrder);
+    let sellprice = baseprice[i % 5];
+    let sellOrder = matcher.createOrder(
+      accounts[i % 5],
+      matcher.sell,
+      volumes[i % 4],
+      sellprice
+    );
+    matcher.processOrder(sellOrder);
+  }
+  for (let user of accounts) {
+    matcher.cancelAllOrders(user);
+  }
+
+  let finalBalance = sumBalance(matcher, "GBP");
+  let balances = [initialBalance, finalBalance];
+  return balances;
 }
