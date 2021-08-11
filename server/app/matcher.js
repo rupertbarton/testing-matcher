@@ -7,11 +7,36 @@ function Matcher() {
   this.tradeHistory = [];
   this.accountList = {};
 
+  this.round = function (value) {
+    let decimalPlaces = 6;
+    value *= 10 ** decimalPlaces;
+    rounded = Math.round(value);
+    return rounded / 10 ** decimalPlaces;
+  };
+
+  this.equalZero = function (value) {
+    tolerance = 1e-4;
+    if (typeof value != "number") {
+      throw new Error("Type error: only a number can be <= 0");
+    } else {
+      return Math.abs(value) < tolerance;
+    }
+  };
+
+  this.lessthanZero = function (value) {
+    tolerance = 1e-4;
+    if (typeof value != "number") {
+      throw new Error("Type error: only a number can be <= 0");
+    } else {
+      return value < tolerance;
+    }
+  };
+
   //Account set up
   this.addAccount = function (username, startingGBP = 10, startingBTC = 0) {
     this.validateNewUsername(username);
-    this.validateCurrencyAmount(startingGBP);
-    this.validateCurrencyAmount(startingBTC);
+    this.validateStartingAmount(startingGBP);
+    this.validateStartingAmount(startingBTC);
     this.accountList[username] = {
       username,
       GBP: startingGBP,
@@ -52,11 +77,23 @@ function Matcher() {
     }
   };
 
-  this.validateCurrencyAmount = function (amount) {
+  this.validateStartingAmount = function (amount) {
+    //Starting currency amount CAN be exactly zero
     if (typeof amount !== "number") {
       throw new Error("Amount error: must be a number");
     }
     if (amount < 0) {
+      throw new Error("Amount error: must be positive");
+    } else {
+      return true;
+    }
+  };
+
+  this.validateCurrencyAmount = function (amount) {
+    if (typeof amount !== "number") {
+      throw new Error("Amount error: must be a number");
+    }
+    if (this.lessthanZero(amount)) {
       throw new Error("Amount error: must be positive");
     } else {
       return true;
@@ -85,7 +122,7 @@ function Matcher() {
     if (typeof volume !== "number") {
       throw new Error("Volume error: must be a number");
     }
-    if (volume <= 0) {
+    if (this.lessthanZero(volume)) {
       throw new Error("Volume error: must be positive");
     } else {
       return true;
@@ -96,7 +133,7 @@ function Matcher() {
     if (typeof price !== "number") {
       throw new Error("Price error: must be a number");
     }
-    if (price <= 0) {
+    if (this.lessthanZero(price)) {
       throw new Error("Price error: must be positive");
     } else {
       return true;
@@ -104,13 +141,13 @@ function Matcher() {
   };
 
   this.checkBalanceGBP = function (username, amount) {
-    if (this.accountList[username].GBP < amount) {
+    if (this.lessthanZero(this.accountList[username].GBP - amount)) {
       throw new Error("Transaction error: insufficient balance (GBP)");
     }
   };
 
   this.checkBalanceBTC = function (username, amount) {
-    if (this.accountList[username].BTC < amount) {
+    if (this.lessthanZero(this.accountList[username].BTC - amount)) {
       throw new Error("Transaction error: insufficient balance (BTC)");
     }
   };
@@ -168,9 +205,9 @@ function Matcher() {
     let amountPaid = newTrade.volume * newTrade.price;
     let priceDifference = buyOrder.price - newTrade.price;
     let refund = newTrade.volume * priceDifference;
-    this.accountList[newTrade.seller].GBP += amountPaid;
-    this.accountList[newTrade.buyer].GBP += refund;
-    this.accountList[newTrade.buyer].BTC += newTrade.volume;
+    this.accountList[newTrade.seller].GBP += this.round(amountPaid);
+    this.accountList[newTrade.buyer].GBP += this.round(refund);
+    this.accountList[newTrade.buyer].BTC += this.round(newTrade.volume);
   };
 
   this.pushOrder = function (order) {
@@ -183,7 +220,9 @@ function Matcher() {
   };
 
   this.sortBuyOrders = function () {
-    this.buyOrders = this.buyOrders.filter((order) => order.volume > 0);
+    this.buyOrders = this.buyOrders.filter(
+      (order) => this.lessthanZero(order.volume) === false
+    );
     this.buyOrders.sort(function (order1, order2) {
       let pricediff = order2.price - order1.price;
       if (pricediff !== 0) {
@@ -196,7 +235,9 @@ function Matcher() {
   };
 
   this.sortSellOrders = function () {
-    this.sellOrders = this.sellOrders.filter((order) => order.volume > 0);
+    this.sellOrders = this.sellOrders.filter(
+      (order) => this.lessthanZero(order.volume) === false
+    );
     this.sellOrders.sort(function (order1, order2) {
       let pricediff = order1.price - order2.price;
       if (pricediff !== 0) {
@@ -222,11 +263,12 @@ function Matcher() {
       this.creditAccounts(newTrade, newOrder);
       this.sellOrders[i].volume -= newTrade.volume;
       newOrder.volume -= newTrade.volume;
-      if (newOrder.volume === 0) {
+      if (this.equalZero(newOrder.volume)) {
         break;
       }
     }
-    if (newOrder.volume > 0) {
+    if (this.equalZero(newOrder.volume) === false) {
+      this.validateOrder(newOrder);
       this.pushOrder(newOrder);
       this.sortBuyOrders();
     }
@@ -247,11 +289,11 @@ function Matcher() {
       this.creditAccounts(newTrade, this.buyOrders[i]);
       this.buyOrders[i].volume -= newTrade.volume;
       newOrder.volume -= newTrade.volume;
-      if (newOrder.volume === 0) {
+      if (this.equalZero(newOrder.volume)) {
         break;
       }
     }
-    if (newOrder.volume > 0) {
+    if (this.equalZero(newOrder.volume) === false) {
       this.validateOrder(newOrder);
       this.pushOrder(newOrder);
       this.sortSellOrders();
@@ -264,10 +306,10 @@ function Matcher() {
     if (newOrder.action === this.buy) {
       let amountGBP = newOrder.volume * newOrder.price;
       this.checkBalanceGBP(newOrder.username, amountGBP);
-      this.accountList[newOrder.username].GBP -= amountGBP;
+      this.accountList[newOrder.username].GBP -= this.round(amountGBP);
     } else if (newOrder.action === this.sell) {
       this.checkBalanceBTC(newOrder.username, newOrder.volume);
-      this.accountList[newOrder.username].BTC -= newOrder.volume;
+      this.accountList[newOrder.username].BTC -= this.round(newOrder.volume);
     }
     if (newOrder.action === this.buy) {
       this.processBuy(newOrder);

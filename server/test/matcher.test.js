@@ -15,6 +15,10 @@ describe("Matcher", () => {
     expect(true).toBe(false);
   });*/
 
+  test("Equal zero tolerance", () => {
+    expect(matcher.equalZero(0.00001)).toBe(true);
+  });
+
   test("Add account", () => {
     expect(() => {
       matcher.addAccount("Andrea");
@@ -44,6 +48,20 @@ describe("Matcher", () => {
     expect(newOrder.price).toBe(1);
   });
 
+  test("Correctly processes first order", () => {
+    let sellOrder = matcher.createOrder("Elliott", matcher.sell, 10, 5);
+    matcher.processOrder(sellOrder);
+    expect(matcher.sellOrders[0]?.volume).toBe(10);
+  });
+
+  test("Correctly processes trade", () => {
+    let sellOrder = matcher.createOrder("Andrea", matcher.sell, 10, 5);
+    matcher.processOrder(sellOrder);
+    let buyOrder = matcher.createOrder("Elliott", matcher.buy, 10, 5);
+    matcher.processOrder(buyOrder);
+    expect(matcher.tradeHistory[0]?.volume).toBe(10);
+  });
+
   test("Create and sort sell order list", () => {
     createOrders(matcher, matcher.sell, 1);
     matcher.sortSellOrders();
@@ -68,20 +86,6 @@ describe("Matcher", () => {
     //console.log(matcher.buyOrders);
   });
 
-  test("Correctly processes first order", () => {
-    let sellOrder = matcher.createOrder("Andrea", matcher.sell, 10, 5);
-    matcher.processOrder(sellOrder);
-    expect(matcher.sellOrders[0]?.volume).toBe(10);
-  });
-
-  test("Correctly processes trade", () => {
-    let sellOrder = matcher.createOrder("Andrea", matcher.sell, 10, 5);
-    matcher.processOrder(sellOrder);
-    let buyOrder = matcher.createOrder("Elliott", matcher.buy, 10, 5);
-    matcher.processOrder(buyOrder);
-    expect(matcher.tradeHistory[0]?.volume).toBe(10);
-  });
-
   test("Handles large volume of sell orders, maintains correct sorting", () => {
     createOrders(matcher, matcher.sell, 2);
     expect(matcher.sellOrders[3]?.price).toBe(5);
@@ -99,7 +103,7 @@ describe("Matcher", () => {
       matcher.createOrder("Zoe", matcher.sell, 5, 10);
     }).toThrow("Account error: account does not exist");
     expect(() => {
-      matcher.createOrder("Andrea", "oopsie", 5, 10);
+      matcher.createOrder("Andrea", "oopsie", 0.00001, 10);
     }).toThrow("Action error: must be Buy or Sell");
     expect(() => {
       matcher.createOrder("Andrea", matcher.buy, "Bob", 10);
@@ -152,7 +156,7 @@ describe("Matcher", () => {
     createOrders(matcher, matcher.buy, 3);
     console.log(matcher.tradeHistory.length);
     let finalBalance = sumBalance(matcher, "GBP");
-    expect(finalBalance - initialBalance < 0.001).toBe(true);
+    expect(finalBalance).toBe(initialBalance);
   });
 });
 
@@ -185,8 +189,8 @@ function createOrders(matcher, action, testcase = 1) {
     }
   } else if (testcase == 3) {
     let accounts = ["Andrea", "Bob", "Catherine", "Doug", "Andrea", "Elliott"];
-    let prices = [5, 0.00001, 20, 10, 25];
-    let volumes = [0.5, 10.001, 150, 20.2];
+    let prices = [5, 0.1, 20.001, 10, 25];
+    let volumes = [0.5, 10.00001, 150, 20.2];
     for (let i = 0; i < 150; i++) {
       let newOrder = matcher.createOrder(
         accounts[i % 6],
