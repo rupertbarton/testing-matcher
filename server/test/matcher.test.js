@@ -189,7 +189,7 @@ function createOrders(matcher, action, testcase = 1) {
     }
   } else if (testcase == 3) {
     let accounts = ["Andrea", "Bob", "Catherine", "Doug", "Andrea", "Elliott"];
-    let prices = [5, 0.1, 20.001, 10, 25];
+    let prices = [5, 0.01, 20.001, 10, 25];
     let volumes = [0.5, 10.00001, 150, 20.2];
     for (let i = 0; i < 150; i++) {
       let newOrder = matcher.createOrder(
