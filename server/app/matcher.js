@@ -74,7 +74,6 @@ function Matcher() {
       return undefined;
     }
     this.accountList[username] = {
-      username,
       GBP: this.round(startingGBP),
       BTC: this.round(startingBTC),
     };
