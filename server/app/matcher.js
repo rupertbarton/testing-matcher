@@ -35,7 +35,7 @@ function Matcher() {
   };
 
   this.equalZero = function (value) {
-    tolerance = 1e-4;
+    tolerance = 1e-6;
     if (typeof value != "number") {
       throw new Error("Type error: only a number can be <= 0");
     } else {
@@ -43,8 +43,17 @@ function Matcher() {
     }
   };
 
+  this.lessthanequalZero = function (value) {
+    tolerance = 1e-6;
+    if (typeof value != "number") {
+      throw new Error("Type error: only a number can be <= 0");
+    } else {
+      return value < tolerance;
+    }
+  };
+
   this.lessthanZero = function (value) {
-    tolerance = 1e-4;
+    tolerance = -1e-6;
     if (typeof value != "number") {
       throw new Error("Type error: only a number can be <= 0");
     } else {
@@ -64,7 +73,7 @@ function Matcher() {
   };
 
   // Account actions
-  this.addAccount = function (username, startingGBP = 10, startingBTC = 0) {
+  this.createAccount = function (username, startingGBP = 10, startingBTC = 0) {
     try {
       this.validateNewUsername(username);
       this.validateStartingAmount(startingGBP);
@@ -186,7 +195,7 @@ function Matcher() {
     if (typeof amount !== "number") {
       throw new Error("Amount error: must be a number");
     }
-    if (this.lessthanZero(amount)) {
+    if (this.lessthanequalZero(amount)) {
       throw new Error("Amount error: must be positive");
     } else {
       return true;
@@ -237,7 +246,7 @@ function Matcher() {
     if (typeof volume !== "number") {
       throw new Error("Volume error: must be a number");
     }
-    if (this.lessthanZero(volume)) {
+    if (this.lessthanequalZero(volume)) {
       throw new Error("Volume error: must be positive");
     } else {
       return true;
@@ -248,7 +257,7 @@ function Matcher() {
     if (typeof price !== "number") {
       throw new Error("Price error: must be a number");
     }
-    if (this.lessthanZero(price)) {
+    if (this.lessthanequalZero(price)) {
       throw new Error("Price error: must be positive");
     } else {
       return true;
@@ -366,7 +375,7 @@ function Matcher() {
 
   this.sortBuyOrders = function () {
     this.buyOrders = this.buyOrders.filter(
-      (order) => this.lessthanZero(order.volume) === false
+      (order) => this.lessthanequalZero(order.volume) === false
     );
     this.buyOrders.sort(function (order1, order2) {
       let pricediff = order2.price - order1.price;
@@ -381,7 +390,7 @@ function Matcher() {
 
   this.sortSellOrders = function () {
     this.sellOrders = this.sellOrders.filter(
-      (order) => this.lessthanZero(order.volume) === false
+      (order) => this.lessthanequalZero(order.volume) === false
     );
     this.sellOrders.sort(function (order1, order2) {
       let pricediff = order1.price - order2.price;

@@ -7,7 +7,7 @@ describe("Matcher", () => {
     matcher = new Matcher();
     let users = ["Andrea", "Bob", "Catherine", "Doug", "Elliott"];
     for (let username of users) {
-      matcher.addAccount(username, 100000, 100000);
+      matcher.createAccount(username, 100000, 100000);
     }
   });
 
@@ -16,14 +16,14 @@ describe("Matcher", () => {
   });*/
 
   test("Equal zero tolerance", () => {
-    expect(matcher.equalZero(0.00001)).toBe(true);
+    expect(matcher.equalZero(0.0000001)).toBe(true);
   });
 
   describe("Account features", () => {
     test("Add account", () => {
       matcher.throwErrors = true;
       expect(() => {
-        matcher.addAccount("Andrea");
+        matcher.createAccount("Andrea");
       }).toThrow("Username error: account already exists");
     });
 
@@ -127,7 +127,7 @@ describe("Matcher", () => {
 
     test("Check balance before placing order", () => {
       matcher.throwErrors = true;
-      matcher.addAccount("Frank", 10, 10);
+      matcher.createAccount("Frank", 10, 10);
       buyOrder = matcher.createOrder("Frank", matcher.buy, 5, 5);
       sellOrder = matcher.createOrder("Frank", matcher.sell, 20, 5);
       expect(() => {
