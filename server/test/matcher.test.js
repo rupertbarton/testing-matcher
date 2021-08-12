@@ -60,8 +60,18 @@ describe("Matcher", () => {
 
     test("Correctly processes first order", () => {
       let sellOrder = matcher.createOrder("Elliott", matcher.sell, 10, 5);
-      matcher.processOrder(sellOrder);
+      newTrades = matcher.processOrder(sellOrder);
       expect(matcher.sellOrders[0]?.volume).toBe(10);
+    });
+
+    test("Two orders cancel out", () => {
+      matcher.errorMessages = true;
+      let buyOrder = matcher.createOrder("Elliott", matcher.buy, 50, 1);
+      newTrades = matcher.processOrder(buyOrder);
+      let sellOrder = matcher.createOrder("Andrea", matcher.sell, 50, 1);
+      newTrades = matcher.processOrder(sellOrder);
+      console.log(matcher.tradeHistory);
+      expect(matcher.accountList.Elliott.BTC).toBe(100050);
     });
 
     test("Order validation", () => {
@@ -105,7 +115,7 @@ describe("Matcher", () => {
       matcher.cancelOrder(orderid);
       expect(matcher.accountList[user].BTC).toBe(100000);
       newOrder = matcher.createOrder("Bob", matcher.buy, 100, 0.1);
-      matcher.processOrder(newOrder);
+      newTrades = matcher.processOrder(newOrder);
       matcher.cancelOrder(newOrder.id);
       expect(matcher.accountList.Bob.GBP).toBe(100000);
       expect(matcher.buyOrders[0]).toBe(undefined);
@@ -115,9 +125,9 @@ describe("Matcher", () => {
       user = "Andrea";
       for (let i = 0; i < 5; i++) {
         let buyOrder = matcher.createOrder("Andrea", matcher.buy, 100, 50);
-        matcher.processOrder(buyOrder);
+        newTrades = matcher.processOrder(buyOrder);
         let sellOrder = matcher.createOrder("Andrea", matcher.sell, 100, 50);
-        matcher.processOrder(sellOrder);
+        newTrades = matcher.processOrder(sellOrder);
       }
       expect(matcher.buyOrders.length).toBe(5);
       matcher.cancelAllOrders("Andrea");
@@ -131,19 +141,19 @@ describe("Matcher", () => {
       buyOrder = matcher.createOrder("Frank", matcher.buy, 5, 5);
       sellOrder = matcher.createOrder("Frank", matcher.sell, 20, 5);
       expect(() => {
-        matcher.processOrder(buyOrder);
+        newTrades = matcher.processOrder(buyOrder);
       }).toThrow("Transaction error: insufficient balance (GBP)");
       expect(() => {
-        matcher.processOrder(sellOrder);
+        newTrades = matcher.processOrder(sellOrder);
       }).toThrow("Transaction error: insufficient balance (BTC)");
     });
 
     test("Balance is correctly subtracted when placing order", () => {
       let newOrder = matcher.createOrder("Elliott", matcher.buy, 100, 5);
-      matcher.processOrder(newOrder);
+      newTrades = matcher.processOrder(newOrder);
       expect(matcher.accountList.Elliott.GBP).toBe(100000 - 500);
       newOrder = matcher.createOrder("Elliott", matcher.sell, 100, 5);
-      matcher.processOrder(newOrder);
+      newTrades = matcher.processOrder(newOrder);
       expect(matcher.accountList.Elliott.BTC).toBe(100000 - 100);
     });
   });
@@ -151,16 +161,16 @@ describe("Matcher", () => {
   describe("Match and make trades", () => {
     test("Correctly processes trade", () => {
       let sellOrder = matcher.createOrder("Andrea", matcher.sell, 10, 5);
-      matcher.processOrder(sellOrder);
+      newTrades = matcher.processOrder(sellOrder);
       let buyOrder = matcher.createOrder("Elliott", matcher.buy, 10, 5);
-      matcher.processOrder(buyOrder);
+      newTrades = matcher.processOrder(buyOrder);
       expect(matcher.tradeHistory[0]?.volume).toBe(10);
     });
 
     test("Generate a trade and push the remaining buy order to buyOrders", () => {
       createOrders(matcher, matcher.sell, 1);
       let buyOrder = matcher.createOrder("Elliott", matcher.buy, 10, 8);
-      matcher.processOrder(buyOrder);
+      newTrades = matcher.processOrder(buyOrder);
       let totalTradeVolume = 0;
       for (trade of matcher.tradeHistory) {
         totalTradeVolume += trade.volume;
@@ -173,7 +183,7 @@ describe("Matcher", () => {
     test("Generate a trade and push the remaining sell order to sellOrders", () => {
       createOrders(matcher, matcher.buy, 1);
       let sellOrder = matcher.createOrder("Elliott", matcher.sell, 23, 15);
-      matcher.processOrder(sellOrder);
+      newTrades = matcher.processOrder(sellOrder);
       let totalTradeVolume = 0;
       for (trade of matcher.tradeHistory) {
         totalTradeVolume += trade.volume;
@@ -193,7 +203,7 @@ describe("Matcher", () => {
     test("Volume adds up", () => {
       createOrders(matcher, matcher.sell, 1);
       let buyOrder = matcher.createOrder("Elliott", matcher.buy, 100, 1);
-      matcher.processOrder(buyOrder);
+      newTrades = matcher.processOrder(buyOrder);
       expect(
         matcher.buyOrders[0].volume + matcher.accountList.Elliott.BTC
       ).toBe(100100);
@@ -220,8 +230,34 @@ describe("Matcher", () => {
 
     test("Trading game", () => {
       balances = makeTrades(matcher);
-      console.log(matcher.accountList);
+      //console.log(matcher.accountList);
       expect(Math.abs(balances[1] - balances[0]) < 0.001).toBe(true);
+    });
+  });
+
+  describe("Order books", () => {
+    test("Personal order books", () => {
+      createOrders(matcher, matcher.sell, 1);
+      let privateBook = matcher.getPrivateBook("Andrea");
+      expect(privateBook.Sell.length).toBe(1);
+      expect(privateBook.Buy.length).toBe(0);
+      createOrders(matcher, matcher.sell, 1);
+      privateBook = matcher.getPrivateBook("Doug");
+      expect(privateBook.Sell.length).toBe(2);
+    });
+
+    test("Create aggregated order book", () => {
+      matcher.errorMessages = true;
+      createOrders(matcher, matcher.sell, 1);
+      console.log(matcher.aggregatedSellOrders);
+      console.log(matcher.aggregatedBuyOrders);
+      expect(matcher.aggregatedSellOrders[5]).toBe(7);
+    });
+
+    test("Update aggregated order book", () => {
+      matcher.errorMessages = true;
+      createOrders(matcher, matcher.sell, 1);
+      createOrders(matcher, matcher.buy, 1);
     });
   });
 });
@@ -238,7 +274,7 @@ function createOrders(matcher, action, testcase = 1) {
         volumes[i],
         prices[i]
       );
-      matcher.processOrder(newOrder);
+      newTrades = matcher.processOrder(newOrder);
     }
   } else if (testcase == 2) {
     let accounts = ["Andrea", "Bob", "Catherine", "Doug"];
@@ -251,7 +287,7 @@ function createOrders(matcher, action, testcase = 1) {
         volumes[i % 4],
         prices[i % 5]
       );
-      matcher.processOrder(newOrder);
+      newTrades = matcher.processOrder(newOrder);
     }
   } else if (testcase == 3) {
     let accounts = ["Andrea", "Bob", "Catherine", "Doug", "Andrea", "Elliott"];
@@ -264,7 +300,7 @@ function createOrders(matcher, action, testcase = 1) {
         volumes[i % 4],
         prices[i % 5]
       );
-      matcher.processOrder(newOrder);
+      newTrades = matcher.processOrder(newOrder);
     }
   }
 }
@@ -305,7 +341,7 @@ function makeTrades(matcher) {
       volumes[i % 4],
       buyprice
     );
-    matcher.processOrder(buyOrder);
+    newTrades = matcher.processOrder(buyOrder);
     let sellprice = baseprice[i % 5];
     let sellOrder = matcher.createOrder(
       accounts[i % 5],
@@ -313,7 +349,7 @@ function makeTrades(matcher) {
       volumes[i % 4],
       sellprice
     );
-    matcher.processOrder(sellOrder);
+    newTrades = matcher.processOrder(sellOrder);
   }
   for (let user of accounts) {
     matcher.cancelAllOrders(user);

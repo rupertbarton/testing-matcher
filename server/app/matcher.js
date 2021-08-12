@@ -11,6 +11,9 @@ function Matcher() {
   this.tradeHistory = [];
   this.accountList = {};
 
+  this.aggregatedBuyOrders = {};
+  this.aggregatedSellOrders = {};
+
   // Utilities
   this.round = function (value) {
     let decimalPlaces = 6;
@@ -163,6 +166,57 @@ function Matcher() {
     }
     for (let order of mySellOrders) {
       this.cancelOrder(order.id);
+    }
+  };
+
+  this.getPrivateOrders = function (username, action) {
+    try {
+      this.validateExistingUsername(username);
+      this.validateAction(action);
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
+    if (action === this.buy) {
+      return this.buyOrders.filter((order) => order.username === username);
+    } else if (action === this.sell) {
+      return this.sellOrders.filter((order) => order.username === username);
+    }
+  };
+
+  this.getPrivateBook = function (username) {
+    try {
+      this.validateExistingUsername;
+      let Buy = this.getPrivateOrders(username, this.buy);
+      let Sell = this.getPrivateOrders(username, this.sell);
+      let privateOrderBook = { Buy, Sell };
+      return privateOrderBook;
+    } catch (err) {
+      this.announceError(err);
+      return undefined;
+    }
+  };
+
+  this.updateOrderBook = function () {
+    this.aggregatedBuyOrders = {};
+    prices = this.buyOrders.map((order) => order.price);
+    for (let price of prices) {
+      ordersAtPrice = this.buyOrders.filter((order) => order.price === price);
+      let aggregatedVolume = 0;
+      for (let order of ordersAtPrice) {
+        aggregatedVolume += order.volume;
+      }
+      this.aggregatedBuyOrders[price] = aggregatedVolume;
+    }
+    this.aggregatedSellOrders = {};
+    prices = this.sellOrders.map((order) => order.price);
+    for (let price of prices) {
+      ordersAtPrice = this.sellOrders.filter((order) => order.price === price);
+      let aggregatedVolume = 0;
+      for (let order of ordersAtPrice) {
+        aggregatedVolume += order.volume;
+      }
+      this.aggregatedSellOrders[price] = aggregatedVolume;
     }
   };
 
@@ -404,9 +458,10 @@ function Matcher() {
   };
 
   this.processBuy = function (newOrder) {
+    let newTrades = [];
     this.sortSellOrders();
     for (let i = 0; i < this.sellOrders.length; i++) {
-      if (newOrder.price < this.sellOrders[i].price) {
+      if (this.lessthanZero(newOrder.price - this.sellOrders[i].price)) {
         break;
       }
       if (newOrder.username === this.sellOrders[i].username) {
@@ -414,6 +469,7 @@ function Matcher() {
       }
       try {
         let newTrade = this.createTrade(newOrder, this.sellOrders[i]);
+        newTrades.push(newTrade);
         this.tradeHistory.push(newTrade);
         this.creditAccounts(newTrade, newOrder);
         this.sellOrders[i].volume -= newTrade.volume;
@@ -431,24 +487,27 @@ function Matcher() {
       try {
         this.pushOrder(newOrder);
       } catch (err) {
-        this.announceError(err);
         this.refundOrder(newOrder);
+        this.announceError(err);
       }
     }
     this.sortSellOrders();
+    return newTrades;
   };
 
   this.processSell = function (newOrder) {
+    let newTrades = [];
     this.sortBuyOrders();
     for (let i = 0; i < this.buyOrders.length; i++) {
-      if (newOrder.price > this.buyOrders[i].price) {
+      if (this.lessthanZero(this.buyOrders[i].price - newOrder.price)) {
         break;
       }
       if (newOrder.username === this.buyOrders[i].username) {
         continue;
       }
       try {
-        let newTrade = this.createTrade(newOrder, this.buyOrders[i]);
+        let newTrade = this.createTrade(this.buyOrders[i], newOrder);
+        newTrades.push(newTrade);
         this.tradeHistory.push(newTrade);
         this.creditAccounts(newTrade, this.buyOrders[i]);
         this.buyOrders[i].volume -= newTrade.volume;
@@ -466,12 +525,13 @@ function Matcher() {
       try {
         this.pushOrder(newOrder);
       } catch (err) {
-        this.announceError(err);
         this.refundOrder(newOrder);
+        this.announceError(err);
       }
       this.sortSellOrders();
     }
     this.sortBuyOrders();
+    return newTrades;
   };
 
   this.processOrder = function (newOrder) {
@@ -501,10 +561,12 @@ function Matcher() {
       this.accountList[newOrder.username].BTC -= newOrder.volume;
     }
     if (newOrder.action === this.buy) {
-      this.processBuy(newOrder);
+      newTrades = this.processBuy(newOrder);
     } else if (newOrder.action === this.sell) {
-      this.processSell(newOrder);
+      newTrades = this.processSell(newOrder);
     }
+    this.updateOrderBook();
+    return newTrades;
   };
 }
 
