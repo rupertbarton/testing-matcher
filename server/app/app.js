@@ -190,3 +190,13 @@ app.delete("/user/:username/orders/:Orderid", function (req, res) {
     res.status(400).send(err.toString());
   }
 });
+
+app.delete("/user/:username/orders/", function (req, res) {
+  let username = req.params.username;
+  try {
+    matcher.cancelAllOrders(username);
+    res.status(204).send();
+  } catch (err) {
+    res.status(400).send(err.toString());
+  }
+});
