@@ -15,6 +15,10 @@ function Square(props) {
 }
 
 function Board(props) {
+  useEffect(() => {
+    console.log(props);
+  }, [props]);
+
   const renderScreen = (output) => {
     return <Screen output={output} />;
   };
@@ -69,18 +73,22 @@ function Game() {
     } else {
       let previous = currentOutput[currentOutput.length - 1] || "";
       if (operations.find((item) => item === previous) === undefined) {
+        currentOutput = [...currentOutput];
         currentOutput[currentOutput.length - 1] += i.toString();
       } else {
-        currentOutput.push(i.toString());
+        currentOutput = [...currentOutput, i.toString()];
       }
     }
     setOutput(currentOutput);
+    console.log(currentOutput);
   };
 
+  console.log("85");
+  console.log(output);
   return (
     <div className="game">
       <div className="game-board">
-        {Board({ output, onClick: (i) => handleClick(i) })}
+        <Board output={output} onClick={(i) => handleClick(i)} />
       </div>
       <div className="game-info">
         <div>{}</div>
