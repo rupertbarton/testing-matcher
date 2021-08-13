@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
@@ -56,7 +56,6 @@ function Board(props) {
 
 function Game() {
   const [output, setOutput] = useState([]);
-
   const handleClick = (i) => {
     const operations = ["", "C", "=", "+", "-", "/", "*"];
     let currentOutput = output;
