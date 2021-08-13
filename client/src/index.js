@@ -14,66 +14,59 @@ function Square(props) {
   );
 }
 
-function renderScreen(output) {
-  return <Screen output={output} />;
-}
-
-function renderSquare(i, props) {
-  return <Square value={i} onClick={() => props.onClick(i)} />;
-}
-
 function Board(props) {
+  const renderScreen = (output) => {
+    return <Screen output={output} />;
+  };
+
+  const renderSquare = (i) => {
+    return <Square value={i} onClick={() => props.onClick(i)} />;
+  };
+
   return (
     <div>
-      <div className="screen">{renderScreen(props.output)}</div>
+      <div className="screen">{renderScreen(props.output.join(""))}</div>
       <div className="board-row">
-        {renderSquare(7, props)}
-        {renderSquare(8, props)}
-        {renderSquare(9, props)}
-        {renderSquare("/", props)}
+        {renderSquare(7)}
+        {renderSquare(8)}
+        {renderSquare(9)}
+        {renderSquare("/")}
       </div>
       <div className="board-row">
-        {renderSquare(4, props)}
-        {renderSquare(5, props)}
-        {renderSquare(6, props)}
-        {renderSquare("*", props)}
+        {renderSquare(4)}
+        {renderSquare(5)}
+        {renderSquare(6)}
+        {renderSquare("*")}
       </div>
       <div className="board-row">
-        {renderSquare(1, props)}
-        {renderSquare(2, props)}
-        {renderSquare(3, props)}
-        {renderSquare("+", props)}
+        {renderSquare(1)}
+        {renderSquare(2)}
+        {renderSquare(3)}
+        {renderSquare("+")}
       </div>
       <div className="board-row">
-        {renderSquare("C", props)}
-        {renderSquare(0, props)}
-        {renderSquare("=", props)}
-        {renderSquare("-", props)}
+        {renderSquare("C")}
+        {renderSquare(0)}
+        {renderSquare("=")}
+        {renderSquare("-")}
       </div>
     </div>
   );
 }
 
-class Game extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      output: [],
-      sum: "",
-    };
-  }
+function Game() {
+  const [output, setOutput] = useState([]);
 
-  handleClick(i) {
+  const handleClick = (i) => {
     const operations = ["", "C", "=", "+", "-", "/", "*"];
-    let currentOutput = this.state.output;
+    let currentOutput = output;
     if (i === "C") {
-      this.setState({ output: [], sum: "" });
+      currentOutput = [];
     } else if (i === "=") {
-      let sum = calculateValue(this.state.output);
-      this.setState({ output: [sum], sum: sum });
+      let sum = calculateValue(output);
+      currentOutput = [sum];
     } else if (operations.find((item) => item === i) !== undefined) {
       currentOutput = currentOutput.concat([i]);
-      this.setState({ output: currentOutput, sum: currentOutput.join("") });
     } else {
       let previous = currentOutput[currentOutput.length - 1] || "";
       if (operations.find((item) => item === previous) === undefined) {
@@ -81,26 +74,21 @@ class Game extends React.Component {
       } else {
         currentOutput.push(i.toString());
       }
-      this.setState({ output: currentOutput, sum: currentOutput.join("") });
     }
-  }
+    setOutput(currentOutput);
+  };
 
-  render() {
-    return (
-      <div className="game">
-        <div className="game-board">
-          {Board({
-            output: this.state.output,
-            onClick: (i) => this.handleClick(i),
-          })}
-        </div>
-        <div className="game-info">
-          <div>{}</div>
-          <ol>{}</ol>
-        </div>
+  return (
+    <div className="game">
+      <div className="game-board">
+        {Board({ output, onClick: (i) => handleClick(i) })}
       </div>
-    );
-  }
+      <div className="game-info">
+        <div>{}</div>
+        <ol>{}</ol>
+      </div>
+    </div>
+  );
 }
 
 function calculateValue(output) {
