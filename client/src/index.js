@@ -14,46 +14,44 @@ function Square(props) {
   );
 }
 
-class Board extends React.Component {
-  renderScreen(output) {
+function Board(props) {
+  this.renderScreen = function (output) {
     return <Screen output={output} />;
-  }
+  };
 
-  renderSquare(i, onClick = this.onClick) {
+  this.renderSquare = function (i, onClick = this.onClick) {
     return <Square value={i} onClick={() => this.props.onClick(i)} />;
-  }
+  };
 
-  render() {
-    return (
-      <div>
-        <div className="screen">{this.renderScreen(this.props.output)}</div>
-        <div className="board-row">
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-          {this.renderSquare(9)}
-          {this.renderSquare("/")}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-          {this.renderSquare(6)}
-          {this.renderSquare("*")}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-          {this.renderSquare(3)}
-          {this.renderSquare("+")}
-        </div>
-        <div className="board-row">
-          {this.renderSquare("C")}
-          {this.renderSquare(0)}
-          {this.renderSquare("=")}
-          {this.renderSquare("-")}
-        </div>
+  return (
+    <div>
+      <div className="screen">{this.renderScreen(this.props.output)}</div>
+      <div className="board-row">
+        {this.renderSquare(7)}
+        {this.renderSquare(8)}
+        {this.renderSquare(9)}
+        {this.renderSquare("/")}
       </div>
-    );
-  }
+      <div className="board-row">
+        {this.renderSquare(4)}
+        {this.renderSquare(5)}
+        {this.renderSquare(6)}
+        {this.renderSquare("*")}
+      </div>
+      <div className="board-row">
+        {this.renderSquare(1)}
+        {this.renderSquare(2)}
+        {this.renderSquare(3)}
+        {this.renderSquare("+")}
+      </div>
+      <div className="board-row">
+        {this.renderSquare("C")}
+        {this.renderSquare(0)}
+        {this.renderSquare("=")}
+        {this.renderSquare("-")}
+      </div>
+    </div>
+  );
 }
 
 class Game extends React.Component {
@@ -91,10 +89,10 @@ class Game extends React.Component {
     return (
       <div className="game">
         <div className="game-board">
-          <Board
-            output={this.state.output}
-            onClick={(i) => this.handleClick(i)}
-          />
+          {Board({
+            output: this.state.output,
+            onClick: (i) => this.handleClick(i),
+          })}
         </div>
         <div className="game-info">
           <div>{}</div>
