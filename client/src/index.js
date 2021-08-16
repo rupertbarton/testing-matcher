@@ -14,10 +14,28 @@ function Square(props) {
   );
 }
 
+function extraFunctions(props) {
+  const renderTile = (i) => {
+    return <Rectangle value={i} onClick={() => props.onClick(i)} />;
+  };
+
+  return (
+    <div>
+      <button> {scientificMode ? "Simple Mode" : "Scientific Mode"} </button>
+      {if (scientificMode) {<div className="board-row">
+        {renderTile("sin")}
+        {renderTile("cos")}
+        {renderTile("tan")}
+        {renderTile("/")}
+      </div>}}
+    </div>
+  );
+}
+
 function Board(props) {
-  useEffect(() => {
+  /*useEffect(() => {
     console.log(props);
-  }, [props]);
+  }, [props]);*/
 
   const renderScreen = (output) => {
     return <Screen output={output} />;
@@ -30,12 +48,7 @@ function Board(props) {
   return (
     <div>
       <div className="screen">{renderScreen(props.output.join(""))}</div>
-      <div className="board-row">
-        {renderSquare(7)}
-        {renderSquare(8)}
-        {renderSquare(9)}
-        {renderSquare("/")}
-      </div>
+      
       <div className="board-row">
         {renderSquare(4)}
         {renderSquare(5)}
@@ -60,6 +73,7 @@ function Board(props) {
 
 function Game() {
   const [output, setOutput] = useState([]);
+  const [scientificMode, setScientificMode] = useState([false]);
   const handleClick = (i) => {
     const operations = ["", "C", "=", "+", "-", "/", "*"];
     let currentOutput = output;
@@ -87,8 +101,14 @@ function Game() {
   console.log(output);
   return (
     <div className="game">
-      <div className="game-board">
+      <div className="main-functions">
         <Board output={output} onClick={(i) => handleClick(i)} />
+      </div>
+      <div className="main-functions">
+        <extraFunctions
+          scientificMode={scientificMode}
+          onClick={(i) => handleClick(i)}
+        />
       </div>
       <div className="game-info">
         <div>{}</div>
