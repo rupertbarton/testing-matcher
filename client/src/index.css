@@ -8,6 +8,10 @@ ul {
   padding-left: 30px;
 }
 
+.extra-functions {
+  display: table;
+}
+
 .board-row:after {
   clear: both;
   content: "";
@@ -16,6 +20,20 @@ ul {
 
 .status {
   margin-bottom: 10px;
+}
+
+.statusbutton {
+  background: lightgray;
+  border: 1px solid #999;
+  float: left;
+  font-size: 12px;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 67px;
 }
 
 .square {
@@ -37,7 +55,7 @@ ul {
   background: #fff;
   border: 1px solid #999;
   float: left;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   line-height: 34px;
   height: 34px;
@@ -50,7 +68,6 @@ ul {
 
 .screen {
   background: #fff;
-  border: 1px solid #999;
   float: left;
   font-size: 24px;
   font-weight: bold;
@@ -60,7 +77,21 @@ ul {
   margin-top: -1px;
   padding: 0;
   text-align: right;
-  width: 130px;
+  width: 133px;
+}
+
+.long-screen {
+  background: #fff;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: right;
+  width: 273px;
 }
 
 .square:focus {
@@ -73,6 +104,11 @@ ul {
 
 .kbd-navigation .square:focus {
   background: #ddd;
+}
+
+.calculator {
+  display: flex;
+  flex-direction: column;
 }
 
 .game {
