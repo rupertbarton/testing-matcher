@@ -67,8 +67,6 @@ app.get("/users", function (req, res) {
 
 app.get("/user/:username", function (req, res) {
   let username = req.params.username;
-  let userGBP = matcher.accountList[username].GBP;
-  let userBTC = matcher.accountList[username].BTC;
   try {
     matcher.validateExistingUsername(username);
     res.status(200).send(matcher.accountList[username]);
