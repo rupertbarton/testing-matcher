@@ -1,0 +1,33 @@
+.tradeHistory {
+  background-color: rgb(122, 168, 122);
+  display: grid;
+  grid-auto-flow: column;
+  width: 20%;
+  align-content: start;
+}
+
+.tradeHistory ul {
+  padding: 0px;
+}
+
+.tradeHistory li {
+  background-color: rgb(194, 228, 194);
+  border-bottom: 1px solid rgb(122, 168, 122);
+  display: grid;
+  grid-auto-flow: column;
+  list-style: none;
+  padding-left: 10px;
+  padding-right: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  user-select: none;
+}
+
+.tradeHistory h3 {
+  padding: 0px;
+  margin: 0px;
+  padding-bottom: 3px;
+}
+
+.tradeHistory {
+  font-weight: bold;
+}

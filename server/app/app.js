@@ -1,12 +1,16 @@
 var express = require("express");
 var bodyParser = require("body-parser");
-var routes = require("./routes/routes.js");
 var app = express();
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Methods", "GET,POST");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-routes(app);
 
 const Matcher = require("./matcher");
 
@@ -34,7 +38,7 @@ for (let i = 0; i < 50; i++) {
 matcher.throwErrors = true;
 //matcher.errorMessages = true;
 
-var server = app.listen(3000, function () {
+var server = app.listen(3001, function () {
   console.log("app running on port.", server.address().port);
 });
 
@@ -144,11 +148,12 @@ app.post("/user", function (req, res) {
 
 app.post("/user/:username/order", function (req, res) {
   var username = req.params.username;
-  var action = req.query.action;
-  var volume = Number(req.query.volume);
-  var price = Number(req.query.price);
+  var action = req.query.body.action;
+  var volume = Number(req.query.body.volume);
+  var price = Number(req.query.body.price);
   try {
     let newOrder = matcher.createOrder(username, action, volume, price);
+    console.log(newOrder);
     let newTrades = matcher.processOrder(newOrder);
     let aggregatedOrderBook = {
       Buy: matcher.aggregatedBuyOrders,
@@ -158,7 +163,7 @@ app.post("/user/:username/order", function (req, res) {
     let response = { aggregatedOrderBook, privateOrderBook, newTrades };
     res.status(201).send(response);
   } catch (err) {
-    res.status(400).send(err.toString());
+    res.status(400).send({ err: err.toString() });
   }
 });
 

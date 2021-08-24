@@ -1,0 +1,31 @@
+.userForm {
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  align-content: center;
+  border-right: 1px solid rgb(0, 75, 0);
+  margin-top: 1%;
+}
+
+.userForm li {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 5px;
+}
+
+.userForm .fieldName {
+  width: 30%;
+  text-align: right;
+  padding-right: 5%;
+  margin: 0px;
+}
+
+.userForm input {
+  width: 40%;
+}
+
+.userForm h3 {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

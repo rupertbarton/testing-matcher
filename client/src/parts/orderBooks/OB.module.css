@@ -1,0 +1,6 @@
+.orderBooks {
+  background-color: rgb(122, 168, 122);
+  display: flex;
+  flex-direction: column;
+  width: 20%;
+}

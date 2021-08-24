@@ -1,13 +1,49 @@
+.App {
+  display: flex;
+  flex-direction: column;
+}
+
 body {
+  background-color: rgb(224, 255, 217);
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+.main {
+  height: 55vh;
+  display: flex;
+  flex-direction: row;
+}
+
+header {
+  height: 15vh;
+  background-color: green;
+}
+
+footer {
+  height: 30vh;
+  background-color: green;
+  display: flex;
+  flex-direction: row;
+}
+
+.listHeading {
+  font-weight: bold;
+}
+
+.listItem {
+  font-weight: normal;
+}
+
+.listItem:hover {
+  background-color: rgb(211, 250, 134);
 }
