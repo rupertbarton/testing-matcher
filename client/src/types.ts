@@ -54,3 +54,20 @@ export interface action<payloadType> {
 export interface emptyAction {
   type: string;
 }
+
+export interface userData {
+  GBP: number;
+  BTC: number;
+}
+
+export interface response {
+  aggregatedOrderBook: aggregatedOB;
+  personalOrderBook: personalOB;
+  tradeHistory: trade[];
+  userData: userData;
+}
+
+export interface anonResponse {
+  aggregatedOrderBook: aggregatedOB;
+  tradeHistory: trade[];
+}

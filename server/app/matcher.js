@@ -148,6 +148,7 @@ function Matcher() {
       this.refundOrder(this.sellOrders[orderIndex]);
       this.sellOrders.splice(orderIndex, 1);
     }
+    this.updateOrderBook();
   };
 
   this.cancelAllOrders = function (username) {
@@ -319,6 +320,7 @@ function Matcher() {
   };
 
   this.checkBalanceGBP = function (username, amount) {
+    console.log(this.accountList[username].GBP - amount);
     if (this.lessthanZero(this.accountList[username].GBP - amount)) {
       throw new Error("Transaction error: insufficient balance (GBP)");
     }
@@ -547,7 +549,7 @@ function Matcher() {
         this.checkBalanceGBP(newOrder.username, amountGBP);
       } catch (err) {
         this.announceError(err);
-        return undefined;
+        return false;
       }
       this.accountList[newOrder.username].GBP -= amountGBP;
       this.roundBalance(newOrder.username);
@@ -556,7 +558,7 @@ function Matcher() {
         this.checkBalanceBTC(newOrder.username, newOrder.volume);
       } catch (err) {
         this.announceError(err);
-        return undefined;
+        return false;
       }
       this.accountList[newOrder.username].BTC -= newOrder.volume;
     }
@@ -566,7 +568,6 @@ function Matcher() {
       newTrades = this.processSell(newOrder);
     }
     this.updateOrderBook();
-    return newTrades;
   };
 }
 

@@ -4,7 +4,7 @@ var app = express();
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.header("Access-Control-Allow-Methods", "GET,POST");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
 });
@@ -23,9 +23,9 @@ matcher.createAccount("Doug", 100, 100);
 matcher.createAccount("Elliott", 100, 100);
 
 let accounts = ["Andrea", "Bob", "Catherine", "Doug"];
-let prices = [5, 10, 15, 2, 5];
+let prices = [5, 4, 3, 2, 1];
 let volumes = [5, 10, 15, 20];
-for (let i = 0; i < 50; i++) {
+for (let i = 0; i < 10; i++) {
   let newOrder = matcher.createOrder(
     accounts[i % 4],
     matcher.buy,
@@ -37,6 +37,23 @@ for (let i = 0; i < 50; i++) {
 
 matcher.throwErrors = true;
 //matcher.errorMessages = true;
+
+const dataPackage = (username) => {
+  const aggregatedOrderBook = {
+    Buy: matcher.aggregatedBuyOrders,
+    Sell: matcher.aggregatedSellOrders,
+  };
+  const personalOrderBook = matcher.getPrivateBook(username);
+  const tradeHistory = matcher.tradeHistory;
+  const userData = matcher.accountList[username];
+  const response = {
+    aggregatedOrderBook,
+    personalOrderBook,
+    tradeHistory,
+    userData,
+  };
+  return response;
+};
 
 var server = app.listen(3001, function () {
   console.log("app running on port.", server.address().port);
@@ -73,7 +90,8 @@ app.get("/user/:username", function (req, res) {
   let username = req.params.username;
   try {
     matcher.validateExistingUsername(username);
-    res.status(200).send(matcher.accountList[username]);
+    const response = dataPackage(username);
+    res.status(200).send(response);
   } catch (err) {
     res.status(400).send(err.toString());
   }
@@ -101,8 +119,8 @@ app.get("/orders/aggregated", function (req, res) {
 app.get("/user/:username/orders", function (req, res) {
   let username = req.params.username;
   try {
-    let privateOrderBook = matcher.getPrivateBook(username);
-    res.status(200).send(privateOrderBook);
+    const response = dataPackage(username);
+    res.status(200).send(response);
   } catch (err) {
     res.status(400).send(err.toString());
   }
@@ -111,11 +129,11 @@ app.get("/user/:username/orders", function (req, res) {
 app.put("/user/:username/deposit/:currency", function (req, res) {
   let username = req.params.username;
   let currency = req.params.currency;
-  let amount = Number(req.query.amount);
+  let amount = Number(req.body.amount);
   try {
     //matcher.validateCurrency(currency);
     matcher.topUp(username, amount, currency);
-    res.status(204).send();
+    res.status(200).send(matcher.accountList[username]);
   } catch (err) {
     res.status(400).send(err.toString());
   }
@@ -124,11 +142,12 @@ app.put("/user/:username/deposit/:currency", function (req, res) {
 app.put("/user/:username/withdraw/:currency", function (req, res) {
   let username = req.params.username;
   let currency = req.params.currency;
-  let amount = Number(req.query.amount);
+  let amount = Number(req.body.amount);
+  console.log(amount);
   try {
     matcher.validateCurrency(currency);
     matcher.withdraw(username, amount, currency);
-    res.status(204).send();
+    res.status(200).send(matcher.accountList[username]);
   } catch (err) {
     res.status(400).send(err.toString());
   }
@@ -148,22 +167,17 @@ app.post("/user", function (req, res) {
 
 app.post("/user/:username/order", function (req, res) {
   var username = req.params.username;
-  var action = req.query.body.action;
-  var volume = Number(req.query.body.volume);
-  var price = Number(req.query.body.price);
+  var action = req.body.action;
+  var volume = Number(req.body.volume);
+  var price = Number(req.body.price);
   try {
     let newOrder = matcher.createOrder(username, action, volume, price);
-    console.log(newOrder);
-    let newTrades = matcher.processOrder(newOrder);
-    let aggregatedOrderBook = {
-      Buy: matcher.aggregatedBuyOrders,
-      Sell: matcher.aggregatedSellOrders,
-    };
-    let privateOrderBook = matcher.getPrivateBook(username);
-    let response = { aggregatedOrderBook, privateOrderBook, newTrades };
+    matcher.processOrder(newOrder);
+    const response = dataPackage(username);
     res.status(201).send(response);
   } catch (err) {
-    res.status(400).send({ err: err.toString() });
+    console.log("Error");
+    res.status(400).send(err.toString());
   }
 });
 
@@ -183,7 +197,8 @@ app.delete("/user/:username/orders/:Orderid", function (req, res) {
         throw new Error("Cannot cancel someone else's order");
       } else {
         matcher.cancelOrder(id);
-        res.status(204).send();
+        const response = dataPackage(username);
+        res.status(200).send(response);
       }
     } catch (err) {
       res.status(403).send(err.toString());
@@ -198,7 +213,8 @@ app.delete("/user/:username/orders/", function (req, res) {
   let username = req.params.username;
   try {
     matcher.cancelAllOrders(username);
-    res.status(204).send();
+    const response = dataPackage(username);
+    res.status(200).send(response);
   } catch (err) {
     res.status(400).send(err.toString());
   }

@@ -1,6 +1,7 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import * as matcherActions from "src/reducer/matcherActions";
 
 import OrderBooks from "./parts/orderBooks/OrderBooks";
 import DataDisplay from "./parts/dataDisplay/DataDisplay";

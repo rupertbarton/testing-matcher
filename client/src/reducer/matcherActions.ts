@@ -13,14 +13,10 @@ export const getMatcherInfo = (): types.emptyAction => {
   };
 };
 
-export const cancelOrder = (
-  orderDetails: [types.orderAction, string]
-): types.action<[types.orderAction, string]> => {
-  const orderAction = orderDetails[0];
-  const orderId = orderDetails[1];
+export const cancelOrder = (orderId: string): types.action<string> => {
   return {
     type: "matcher/cancelOrder",
-    payload: [orderDetails[0], orderDetails[1]],
+    payload: orderId,
   };
 };
 

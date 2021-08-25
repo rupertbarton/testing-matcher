@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import type * as types from "src/types";
+import style from "./elements.module.css";
 
 type stringOrNumber = string | number;
 
-const ListItem = (prop: { data: stringOrNumber[]; onDelete?: () => void }) => {
+const ListItem = (prop: {
+  data: stringOrNumber[];
+  onDelete?: () => void;
+  colors?: string[];
+}) => {
   const data = prop.data;
 
   const deleteButton = (onDelete?: () => void) => {
@@ -18,7 +23,13 @@ const ListItem = (prop: { data: stringOrNumber[]; onDelete?: () => void }) => {
     }
   };
 
-  const formattedData = data.map((datum) => <div>{datum}</div>);
+  const formattedData = data.map((datum, i) => {
+    if (prop.colors !== undefined) {
+      const color = prop.colors[i];
+      return <div className={style[color]}>{datum}</div>;
+    }
+    return <div>{datum}</div>;
+  });
 
   return (
     <li className="listItem">

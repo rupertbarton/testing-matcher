@@ -1,28 +1,25 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import type * as type from "../types";
+import type * as types from "../types";
 
-const initialState: type.userState = {
+const initialState: types.userState = {
   userList: ["Andrea", "Bob", "Catherine", "Doug", "Elliott"],
-  currentUser: "Elliott",
-  userBalance: { GBP: 50, BTC: 50 },
+  currentUser: "Andrea",
+  userBalance: { GBP: 0, BTC: 0 },
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser(state, action: type.action<string>) {
+    setUser(state, action: types.action<string>) {
       state.currentUser = action.payload;
     },
-    topUp(state, action: type.action<[type.currency, number]>) {
-      state.userBalance[action.payload[0]] += action.payload[1];
-    },
-    withdraw(state, action: type.action<[type.currency, number]>) {
-      state.userBalance[action.payload[0]] += -action.payload[1];
+    setBalance(state, action: types.action<types.userData>) {
+      state.userBalance = action.payload;
     },
   },
 });
 
-export const { setUser, topUp, withdraw } = userSlice.actions;
+export const { setUser, setBalance } = userSlice.actions;
 
 export default userSlice.reducer;

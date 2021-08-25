@@ -3,20 +3,11 @@ import type * as types from "../types";
 
 const initialState: types.matcherState = {
   aggregatedOrderBook: {
-    Buy: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-    Sell: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+    Buy: {},
+    Sell: {},
   },
   personalOrderBook: { Buy: [], Sell: [] },
-  tradeHistory: [
-    {
-      buyer: "Elliott",
-      seller: "Andrea",
-      price: 5,
-      volume: 10,
-      timestamp: new Date(),
-      id: "1a",
-    },
-  ],
+  tradeHistory: [],
 };
 
 /*export const addOrder = createAsyncThunk(

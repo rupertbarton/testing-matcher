@@ -13,15 +13,32 @@ const TradeHistory = () => {
   const matcherState = useSelector(selectMatcher);
 
   const tradeHistory = matcherState.tradeHistory;
-  const tradeList = tradeHistory.map((trade: types.trade) => {
-    return <ListItem key={trade.id} data={[trade.price, trade.volume]} />;
+  let tradeList = tradeHistory.map((trade: types.trade, i) => {
+    let colors = ["grey", ""];
+    let change: "up" | "down" | "level";
+    if (trade.price > tradeHistory[i - 1]?.price) {
+      colors[1] = "green";
+    } else if (trade.price < tradeHistory[i - 1]?.price) {
+      colors[1] = "red";
+    } else {
+      colors[1] = "grey";
+    }
+    return (
+      <ListItem
+        key={trade.id}
+        data={[trade.volume, trade.price]}
+        colors={colors}
+      />
+    );
   });
+
+  tradeList.reverse();
 
   return (
     <div className={thStyle.tradeHistory}>
       <ul>
         <h3>{"Trade history"}</h3>
-        <ListHeading key={"POBkey"} data={["Price", "Volume"]} />
+        <ListHeading key={"POBkey"} data={["Volume", "Price"]} />
         {tradeList}
       </ul>
     </div>

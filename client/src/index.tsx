@@ -8,26 +8,7 @@ import * as serviceWorker from "./serviceWorker";
 import * as matcherActions from "./reducer/matcherActions";
 import type * as types from "./types";
 
-const order1: types.order = {
-  action: "Buy",
-  username: "Elliott",
-  price: 5,
-  volume: 10,
-  timestamp: new Date(),
-  id: "order1",
-};
-
-const order2: types.order = {
-  action: "Sell",
-  username: "Elliott",
-  price: 2,
-  volume: 20,
-  timestamp: new Date(),
-  id: "order2",
-};
-
-store.dispatch(matcherActions.addOrder(order1));
-store.dispatch(matcherActions.addOrder(order2));
+store.dispatch(matcherActions.getMatcherInfo());
 
 ReactDOM.render(
   <React.StrictMode>

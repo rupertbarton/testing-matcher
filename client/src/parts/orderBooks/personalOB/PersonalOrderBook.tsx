@@ -23,7 +23,7 @@ const PersonalOrderBook = () => {
         key={order.id}
         data={[order.price, order.volume, order.action]}
         onDelete={() => {
-          dispatch(matcherActions.cancelOrder([order.action, order.id]));
+          dispatch(matcherActions.cancelOrder(order.id));
         }}
       />
     );
@@ -35,7 +35,7 @@ const PersonalOrderBook = () => {
         key={order.id}
         data={[order.price, order.volume, order.action]}
         onDelete={() => {
-          dispatch(matcherActions.cancelOrder([order.action, order.id]));
+          dispatch(matcherActions.cancelOrder(order.id));
         }}
       />
     );
@@ -44,7 +44,7 @@ const PersonalOrderBook = () => {
   return (
     <div className={pobStyle.personalOrderBook}>
       <ul>
-        <h3>{userState.currentUser + "'s personal order book"}</h3>
+        <h3>{"Personal order book"}</h3>
 
         <ListHeading
           key={"POBkey"}

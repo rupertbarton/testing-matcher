@@ -20,3 +20,10 @@ export const withdraw = (currency: type.currency, amount: number) => {
     payload: [currency, amount],
   };
 };
+
+export const setBalance = (userData: type.userData) => {
+  return {
+    type: "user/setBalance",
+    payload: userData,
+  };
+};

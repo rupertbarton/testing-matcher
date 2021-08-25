@@ -19,35 +19,53 @@ const AggregatedOrderBook = () => {
 
   const orderBookData = matcherState.aggregatedOrderBook;
   const orderBookBuyPrices = Object.keys(orderBookData.Buy);
-  const buyList = orderBookBuyPrices.map((strprice: stringOrNumber) => {
-    const price = Number(strprice);
-    return (
-      <ListItem key={"Buy" + price} data={[price, orderBookData.Buy[price]]} />
-    );
-  });
+  orderBookBuyPrices.sort((a, b) => Number(a) - Number(b));
+  const buyList = orderBookBuyPrices
+    .slice(0, 10)
+    .map((strprice: stringOrNumber) => {
+      const price = Number(strprice);
+      return (
+        <ListItem
+          key={"Buy" + price}
+          data={[price, orderBookData.Buy[price]]}
+        />
+      );
+    });
 
   const orderBookSellPrices = Object.keys(orderBookData.Sell);
-  const sellList = orderBookSellPrices.map((strprice: stringOrNumber) => {
-    const price = Number(strprice);
-    return (
-      <ListItem
-        key={"Sell" + price}
-        data={[price, orderBookData.Sell[price]]}
-      />
-    );
-  });
+  orderBookSellPrices.sort((a, b) => Number(a) - Number(b));
+  const sellList = orderBookSellPrices
+    .slice(0, 10)
+    .map((strprice: stringOrNumber) => {
+      const price = Number(strprice);
+      return (
+        <ListItem
+          key={"Sell" + price}
+          data={[price, orderBookData.Sell[price]]}
+        />
+      );
+    });
 
   return (
     <div className={aobStyle.aggregatedOrderBook}>
-      <ul>
-        <h3>{"Aggregated order book"}</h3>
+      <h3>{"Aggregated order book"}</h3>
 
-        <ListHeading key={"AOBkey"} data={["Price", "Volume"]} />
-        <div>Buy orders</div>
-        {buyList}
-        <div>Sell orders</div>
-        {sellList}
-      </ul>
+      <div className={aobStyle.twoLists}>
+        <ul>
+          <li>
+            <b>Buy list</b>
+          </li>
+          <ListHeading key={"AOBkey"} data={["Price", "Volume"]} />
+          {buyList}
+        </ul>
+        <ul className={aobStyle.lastColumn}>
+          <li>
+            <b>Sell list</b>
+          </li>
+          <ListHeading key={"AOBkey"} data={["Price", "Volume"]} />
+          {sellList}
+        </ul>
+      </div>
     </div>
   );
 };
