@@ -4,9 +4,10 @@
 }
 
 body {
-  background-color: rgb(224, 255, 217);
+  background-color: rgb(49, 49, 49);
+  color: rgb(215, 233, 215);
   margin: 0;
-  font-family: "Nirmala UI", sans-serif;
+  font-family: "Agency FB", "Nirmala UI", "Broadway", "Stencil", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -25,14 +26,25 @@ code {
 header {
   font-family: "Broadway";
   height: 15vh;
-  background-color: forestgreen;
+  background-color: rgb(29, 29, 29);
+  color: honeydew;
+  border-bottom: 3px ridge rgb(215, 233, 215);
+  margin-bottom: 1px;
+}
+
+header h1 {
+  font-size: 6vh;
+  text-shadow: 2px 1px gray;
 }
 
 footer {
-  height: 30vh;
-  background-color: forestgreen;
+  box-sizing: content-box;
+  height: 29vh;
+  background-color: rgb(44, 44, 44);
   display: flex;
   flex-direction: row;
+  border-top: 3px ridge rgb(215, 233, 215);
+  margin-top: 1px;
 }
 
 .listHeading {
