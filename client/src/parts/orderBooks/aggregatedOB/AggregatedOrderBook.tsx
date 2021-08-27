@@ -56,14 +56,14 @@ const AggregatedOrderBook = () => {
           <li>
             <b>Buy list</b>
           </li>
-          <ListHeading key={"AOBkey"} data={["Price", "Volume"]} />
+          <ListHeading key={"AOBkeyBuy"} data={["Price", "Volume"]} />
           {buyList}
         </ul>
         <ul className={aobStyle.lastColumn}>
           <li>
             <b>Sell list</b>
           </li>
-          <ListHeading key={"AOBkey"} data={["Price", "Volume"]} />
+          <ListHeading key={"AOBkeySell"} data={["Price", "Volume"]} />
           {sellList}
         </ul>
       </div>

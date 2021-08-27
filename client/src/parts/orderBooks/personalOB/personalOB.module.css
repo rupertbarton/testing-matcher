@@ -10,7 +10,9 @@
 }
 
 .personalOrderBook ul {
+  height: 100%;
   padding: 0px;
+  max-height: 35vh;
 }
 
 .orderList {

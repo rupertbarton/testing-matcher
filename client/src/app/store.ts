@@ -3,7 +3,7 @@ import createSagaMiddleware from "redux-saga";
 import matcherReducer from "../reducer/matcherSlice";
 import userReducer from "../reducer/userSlice";
 import settingsReducer from "src/reducer/settingsSlice";
-import rootSaga from "./sagas/matcherSagas";
+import rootSaga from "./sagas/sagas";
 
 const sagaMiddleware = createSagaMiddleware();
 

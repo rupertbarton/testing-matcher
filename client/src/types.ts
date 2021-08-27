@@ -6,7 +6,7 @@ export interface order {
   username: string;
   volume: number;
   price: number;
-  timestamp: Date;
+  timestamp: string;
   id: string;
 }
 
@@ -15,7 +15,7 @@ export interface trade {
   seller: string;
   volume: number;
   price: number;
-  timestamp: Date;
+  timestamp: string;
   id: string;
 }
 
@@ -39,6 +39,7 @@ export type currentObject = order | trade | undefined;
 
 export interface settingsState {
   currentObject: currentObject;
+  currentError: string;
 }
 
 export interface aggregatedOB {

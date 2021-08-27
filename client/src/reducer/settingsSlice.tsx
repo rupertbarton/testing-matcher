@@ -3,6 +3,7 @@ import type * as types from "../types";
 
 const initialState: types.settingsState = {
   currentObject: undefined,
+  currentError: "",
 };
 
 /*export const addOrder = createAsyncThunk(
@@ -19,9 +20,12 @@ const settingsSlice = createSlice({
     setCurrentObject(state, action: types.action<types.currentObject>) {
       state.currentObject = action.payload;
     },
+    setCurrentError(state, action: types.action<string>) {
+      state.currentError = action.payload;
+    },
   },
 });
 
-export const { setCurrentObject } = settingsSlice.actions;
+export const { setCurrentObject, setCurrentError } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

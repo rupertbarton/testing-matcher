@@ -37,10 +37,10 @@ const OrderForm = () => {
       action: action,
       price: Number(price),
       volume: Number(volume),
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       id: "",
     };
-    newOrder.id = newOrder.username + newOrder.timestamp.toISOString();
+    newOrder.id = newOrder.username + newOrder.timestamp;
     dispatch(matcherActions.addOrder(newOrder));
     setPrice(0);
     setVolume(0);

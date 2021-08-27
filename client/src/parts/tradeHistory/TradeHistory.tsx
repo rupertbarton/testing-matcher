@@ -43,7 +43,7 @@ const TradeHistory = () => {
     <div className={thStyle.tradeHistory}>
       <ul>
         <h3>{"Trade history"}</h3>
-        <ListHeading key={"POBkey"} data={["Volume", "Price"]} />
+        <ListHeading key={"Tradekey"} data={["Volume", "Price"]} />
         {tradeList}
       </ul>
     </div>

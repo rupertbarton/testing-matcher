@@ -8,3 +8,10 @@ export const setCurrentObject = (
     payload: newObject,
   };
 };
+
+export const setCurrentError = (newError: string): types.action<string> => {
+  return {
+    type: "settings/setCurrentError",
+    payload: newError,
+  };
+};
