@@ -6,6 +6,7 @@ import ListItem from "src/elements/listItem";
 import ListHeading from "src/elements/listHeading";
 import * as matcherActions from "src/reducer/matcherActions";
 import pobStyle from "./personalOB.module.css";
+import * as settingsActions from "src/reducer/settingsActions";
 
 const PersonalOrderBook = () => {
   const selectUser = (state: RootState): types.userState => state.user;
@@ -22,6 +23,9 @@ const PersonalOrderBook = () => {
       <ListItem
         key={order.id}
         data={[order.price, order.volume, order.action]}
+        onClick={() => {
+          dispatch(settingsActions.setCurrentObject(order));
+        }}
         onDelete={() => {
           dispatch(matcherActions.cancelOrder(order.id));
         }}
@@ -36,6 +40,9 @@ const PersonalOrderBook = () => {
         data={[order.price, order.volume, order.action]}
         onDelete={() => {
           dispatch(matcherActions.cancelOrder(order.id));
+        }}
+        onClick={() => {
+          dispatch(settingsActions.setCurrentObject(order));
         }}
       />
     );

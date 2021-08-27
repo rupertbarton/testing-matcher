@@ -6,7 +6,7 @@ import ListItem from "src/elements/listItem";
 import ListHeading from "src/elements/listHeading";
 import * as matcherActions from "src/reducer/matcherActions";
 import thStyle from "./tradeHistory.module.css";
-import { setCurrentObject } from "src/reducer/settingsSlice";
+import { setCurrentObject } from "src/reducer/settingsActions";
 
 const TradeHistory = () => {
   const selectMatcher = (state: RootState): types.matcherState => state.matcher;

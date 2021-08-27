@@ -8,10 +8,21 @@
   margin: 1%;
 }
 
+.topRow {
+  display: flex;
+  flex-direction: row-reverse;
+  color: rgb(255, 91, 91);
+  margin: 0px;
+}
+
+.topRow button {
+  margin: 0px;
+}
+
 .orderForm button {
   background-color: black;
   color: inherit;
-  height: 1.7rem;
+  height: 1.4rem;
   border: 3px double rgba(240, 255, 240, 0.9);
   margin-left: 1vh;
 }
@@ -44,7 +55,8 @@
   width: 40%;
 }
 
-.orderForm h3 {
-  margin-top: 5px;
+h3 {
+  padding: 0px;
+  margin-top: 0px;
   margin-bottom: 5px;
 }

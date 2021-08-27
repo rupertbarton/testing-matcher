@@ -6,6 +6,7 @@ import ListItem from "src/elements/listItem";
 import ListHeading from "src/elements/listHeading";
 import * as matcherActions from "src/reducer/matcherActions";
 import aobStyle from "./aggregatedOB.module.css";
+
 type stringOrNumber = string | number;
 
 const AggregatedOrderBook = () => {

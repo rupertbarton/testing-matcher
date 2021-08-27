@@ -19,6 +19,22 @@ export interface trade {
   id: string;
 }
 
+export type orderkey =
+  | "action"
+  | "username"
+  | "volume"
+  | "price"
+  | "timestamp"
+  | "id";
+
+export type tradekey =
+  | "buyer"
+  | "seller"
+  | "volume"
+  | "price"
+  | "timestamp"
+  | "id";
+
 export type currentObject = order | trade | undefined;
 
 export interface settingsState {

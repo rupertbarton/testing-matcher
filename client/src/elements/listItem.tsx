@@ -33,7 +33,7 @@ const ListItem = (props: {
         </div>
       );
     }
-    return <div>{datum}</div>;
+    return <div onClick={props.onClick}>{datum}</div>;
   });
 
   return (
