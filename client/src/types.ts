@@ -19,6 +19,12 @@ export interface trade {
   id: string;
 }
 
+export type currentObject = order | trade | undefined;
+
+export interface settingsState {
+  currentObject: currentObject;
+}
+
 export interface aggregatedOB {
   Buy: { [price: number]: number };
   Sell: { [price: number]: number };

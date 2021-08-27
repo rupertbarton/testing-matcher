@@ -54,10 +54,10 @@ const UserForm = () => {
           />{" "}
         </li>
         <li>
-          {"GBP: " +
-            userState.userBalance.GBP +
-            "; BTC: " +
-            userState.userBalance.BTC}
+          <div className={formStyle.fieldName}>
+            {"GBP: " + userState.userBalance.GBP}
+          </div>
+          <div>{"BTC: " + userState.userBalance.BTC}</div>
         </li>
         <li>
           <div className={formStyle.fieldName}>Currency:</div>
@@ -75,7 +75,7 @@ const UserForm = () => {
             handleChange={handleAmountChange}
           />
         </li>
-        <li>
+        <li className={formStyle.buttons}>
           <button onClick={topUp}>Top Up</button>
           <button onClick={withdraw}>Withdraw</button>
         </li>

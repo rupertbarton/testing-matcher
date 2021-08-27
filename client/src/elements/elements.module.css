@@ -1,11 +1,32 @@
 .red {
-  color: red;
+  color: rgb(255, 108, 108);
 }
 
 .green {
-  color: rgb(4, 184, 4);
+  color: rgb(121, 228, 121);
 }
 
 .grey {
-  color: grey;
+  color: rgb(155, 155, 155);
+}
+
+.destroy {
+  padding: 0px;
+  text-align: center;
+  width: 2vh;
+  background-color: black;
+  border: 2px outset honeydew;
+  color: honeydew;
+}
+
+.destroy:hover {
+  background: radial-gradient(rgb(0, 0, 0) 30%, rgb(126, 126, 126) 95%);
+}
+
+.destroy:active {
+  border-style: inset;
+}
+
+.padded {
+  margin-right: 10px;
 }

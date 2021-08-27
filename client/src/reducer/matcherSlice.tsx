@@ -30,29 +30,10 @@ const matcherSlice = createSlice({
     setTradeHistory(state, action: types.action<types.trade[]>) {
       state.tradeHistory = action.payload;
     },
-    getMatcherInfo(state, action: types.emptyAction) {
-      //not needed until API implemented
-    },
-    /*cancelOrder(state, action: types.action<[types.orderAction, string]>) {
-      // When API integrated, payload type is string
-      state.personalOrderBook[action.payload[0]] = state.personalOrderBook[
-        action.payload[0]
-      ].filter((order) => order.id != action.payload[1]);
-    },*/
-    cancelAllOrders(state, action: types.action<string>) {
-      // When API integrated, payload is username
-      state.personalOrderBook.Buy = [];
-      state.personalOrderBook.Sell = [];
-    },
   },
 });
 
-export const {
-  setAggregatedOrderBook,
-  setPersonalOrderBook,
-  setTradeHistory,
-  getMatcherInfo,
-  cancelAllOrders,
-} = matcherSlice.actions;
+export const { setAggregatedOrderBook, setPersonalOrderBook, setTradeHistory } =
+  matcherSlice.actions;
 
 export default matcherSlice.reducer;

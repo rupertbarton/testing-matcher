@@ -4,7 +4,7 @@
 }
 
 body {
-  background-color: rgb(49, 49, 49);
+  background-color: rgb(19, 19, 19);
   color: rgb(215, 233, 215);
   margin: 0;
   font-family: "Agency FB", "Nirmala UI", "Broadway", "Stencil", sans-serif;
@@ -24,27 +24,72 @@ code {
 }
 
 header {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
   font-family: "Broadway";
   height: 15vh;
-  background-color: rgb(29, 29, 29);
+  background-color: rgb(0, 0, 0);
   color: honeydew;
   border-bottom: 3px ridge rgb(215, 233, 215);
   margin-bottom: 1px;
 }
 
-header h1 {
-  font-size: 6vh;
+header div {
+  display: flex;
+  flex-direction: column;
+}
+
+header div h1 {
+  margin-top: 1vh;
+  margin-bottom: 0vh;
+  font-size: 8vh;
   text-shadow: 2px 1px gray;
+  text-decoration: underline 2px double honeydew;
+}
+
+header div h2 {
+  margin-top: 0vh;
+  font-size: 4vh;
+  text-shadow: 2px 1px gray;
+  text-decoration: underline 1px double honeydew;
+}
+
+header div img {
+  height: 100%;
 }
 
 footer {
   box-sizing: content-box;
   height: 29vh;
-  background-color: rgb(44, 44, 44);
+  background-color: rgb(25, 25, 25);
   display: flex;
   flex-direction: row;
   border-top: 3px ridge rgb(215, 233, 215);
   margin-top: 1px;
+  font-size: 2vh;
+}
+
+input {
+  background-color: black;
+  border: 3px double honeydew;
+  color: honeydew;
+}
+
+input:disabled {
+  color: rgb(175, 175, 175);
+}
+
+select {
+  font-family: "Agency FB";
+  font-size: 1.7vh;
+  background-color: black;
+  border: 3px double honeydew;
+  color: rgb(215, 233, 215);
+}
+
+option:hover {
+  background: radial-gradient(rgb(0, 0, 0) 30%, rgb(68, 68, 68) 90%);
 }
 
 .listHeading {
@@ -56,5 +101,28 @@ footer {
 }
 
 .listItem:hover {
-  background-color: rgb(211, 250, 134);
+  background: radial-gradient(rgb(0, 0, 0) 30%, rgb(68, 68, 68) 90%);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-button {
+  height: 0px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(32, 32, 32);
+}
+
+::-webkit-scrollbar-thumb {
+  background: black;
+  border: 3px double rgba(240, 252, 240, 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(36, 36, 36);
+  border-color: rgba(240, 252, 240, 0.8);
 }

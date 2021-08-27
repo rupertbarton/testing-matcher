@@ -49,6 +49,7 @@ const PersonalOrderBook = () => {
         <ListHeading
           key={"POBkey"}
           data={["Price", "Volume", "Action", "Cancel"]}
+          class={"padded"}
         />
         <div className={pobStyle.orderList}>
           {buyList}

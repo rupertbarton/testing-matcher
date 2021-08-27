@@ -4,18 +4,19 @@ import style from "./elements.module.css";
 
 type stringOrNumber = string | number;
 
-const ListItem = (prop: {
+const ListItem = (props: {
   data: stringOrNumber[];
   onDelete?: () => void;
+  onClick?: () => void;
   colors?: string[];
 }) => {
-  const data = prop.data;
+  const data = props.data;
 
   const deleteButton = (onDelete?: () => void) => {
-    if (prop.onDelete !== undefined) {
+    if (props.onDelete !== undefined) {
       return (
         <div>
-          <button className="destroy" onClick={prop.onDelete}>
+          <button className={style.destroy} onClick={props.onDelete}>
             X
           </button>
         </div>
@@ -24,9 +25,13 @@ const ListItem = (prop: {
   };
 
   const formattedData = data.map((datum, i) => {
-    if (prop.colors !== undefined) {
-      const color = prop.colors[i];
-      return <div className={style[color]}>{datum}</div>;
+    if (props.colors !== undefined) {
+      const color = props.colors[i];
+      return (
+        <div className={style[color]} onClick={props.onClick}>
+          {datum}
+        </div>
+      );
     }
     return <div>{datum}</div>;
   });
@@ -34,7 +39,7 @@ const ListItem = (prop: {
   return (
     <li className="listItem">
       {formattedData}
-      {deleteButton(prop.onDelete)}
+      {deleteButton(props.onDelete)}
     </li>
   );
 };

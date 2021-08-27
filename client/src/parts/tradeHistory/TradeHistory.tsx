@@ -6,15 +6,17 @@ import ListItem from "src/elements/listItem";
 import ListHeading from "src/elements/listHeading";
 import * as matcherActions from "src/reducer/matcherActions";
 import thStyle from "./tradeHistory.module.css";
+import { setCurrentObject } from "src/reducer/settingsSlice";
 
 const TradeHistory = () => {
   const selectMatcher = (state: RootState): types.matcherState => state.matcher;
 
+  const dispatch = useDispatch();
   const matcherState = useSelector(selectMatcher);
 
   const tradeHistory = matcherState.tradeHistory;
   let tradeList = tradeHistory.map((trade: types.trade, i) => {
-    let colors = ["grey", ""];
+    let colors = ["", ""];
     let change: "up" | "down" | "level";
     if (trade.price > tradeHistory[i - 1]?.price) {
       colors[1] = "green";
@@ -28,6 +30,9 @@ const TradeHistory = () => {
         key={trade.id}
         data={[trade.volume, trade.price]}
         colors={colors}
+        onClick={() => {
+          dispatch(setCurrentObject(trade));
+        }}
       />
     );
   });

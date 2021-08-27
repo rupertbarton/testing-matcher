@@ -2,6 +2,7 @@ import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import createSagaMiddleware from "redux-saga";
 import matcherReducer from "../reducer/matcherSlice";
 import userReducer from "../reducer/userSlice";
+import settingsReducer from "src/reducer/settingsSlice";
 import rootSaga from "./sagas/matcherSagas";
 
 const sagaMiddleware = createSagaMiddleware();
@@ -10,6 +11,7 @@ export const store = configureStore({
   reducer: {
     matcher: matcherReducer,
     user: userReducer,
+    settings: settingsReducer,
   },
   middleware: [...getDefaultMiddleware({ thunk: false }), sagaMiddleware],
 });

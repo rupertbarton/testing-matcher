@@ -1,10 +1,17 @@
 .userForm {
+  background-color: rgb(15, 15, 15);
   display: flex;
   flex-direction: column;
   width: 30%;
   align-content: center;
-  border-right: 1px solid rgb(0, 75, 0);
-  margin-top: 1%;
+  border: 3px double honeydew;
+  margin: 1%;
+}
+
+.buttons {
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
 }
 
 .userForm li {
@@ -12,6 +19,19 @@
   display: flex;
   flex-direction: row;
   padding-bottom: 5px;
+}
+
+.buttons button {
+  background-color: black;
+  color: inherit;
+  height: 1.7rem;
+  border: 3px double rgba(240, 255, 240, 0.9);
+  margin-left: 1vh;
+}
+
+.buttons button:hover {
+  border-color: honeydew;
+  background: radial-gradient(rgb(0, 0, 0) 30%, rgb(68, 68, 68) 90%);
 }
 
 .userForm .fieldName {
@@ -23,6 +43,8 @@
 
 .userForm input {
   width: 40%;
+  font-family: inherit;
+  font-size: 1rem;
 }
 
 .userForm h3 {
