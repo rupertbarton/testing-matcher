@@ -25,10 +25,21 @@ matcher.createAccount("Elliott", 100, 100);
 let accounts = ["Andrea", "Bob", "Catherine", "Doug"];
 let prices = [5, 4, 3, 2, 1];
 let volumes = [5, 10, 15, 20];
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 50; i++) {
   let newOrder = matcher.createOrder(
     accounts[i % 4],
     matcher.buy,
+    volumes[i % 4],
+    prices[i % 5]
+  );
+  matcher.processOrder(newOrder);
+}
+
+prices = [4, 5, 6, 7, 8];
+for (let i = 0; i < 50; i++) {
+  let newOrder = matcher.createOrder(
+    accounts[i % 4],
+    matcher.sell,
     volumes[i % 4],
     prices[i % 5]
   );
@@ -93,7 +104,7 @@ app.get("/user/:username", function (req, res) {
     const response = dataPackage(username);
     res.status(200).send(response);
   } catch (err) {
-    res.status(400).send(err.toString());
+    res.status(400).send(err.message);
   }
 });
 
@@ -122,7 +133,7 @@ app.get("/user/:username/orders", function (req, res) {
     const response = dataPackage(username);
     res.status(200).send(response);
   } catch (err) {
-    res.status(400).send(err.toString());
+    res.status(400).send(err.message);
   }
 });
 
@@ -135,7 +146,7 @@ app.put("/user/:username/deposit/:currency", function (req, res) {
     matcher.topUp(username, amount, currency);
     res.status(200).send(matcher.accountList[username]);
   } catch (err) {
-    res.status(400).send(err.toString());
+    res.status(400).send(err.message);
   }
 });
 
@@ -149,7 +160,7 @@ app.put("/user/:username/withdraw/:currency", function (req, res) {
     matcher.withdraw(username, amount, currency);
     res.status(200).send(matcher.accountList[username]);
   } catch (err) {
-    res.status(400).send(err.toString());
+    res.status(400).send(err.message);
   }
 });
 
@@ -161,7 +172,7 @@ app.post("/user", function (req, res) {
     matcher.createAccount(username, startingGBP, startingBTC);
     res.status(201).send(matcher.accountList[username]);
   } catch (err) {
-    res.status(400).send(err.toString());
+    res.status(400).send(err.message);
   }
 });
 
@@ -177,7 +188,7 @@ app.post("/user/:username/order", function (req, res) {
     res.status(201).send(response);
   } catch (err) {
     console.log("Error");
-    res.status(400).send(err.toString());
+    res.status(400).send(err.message);
   }
 });
 
@@ -201,11 +212,11 @@ app.delete("/user/:username/orders/:Orderid", function (req, res) {
         res.status(200).send(response);
       }
     } catch (err) {
-      res.status(403).send(err.toString());
+      res.status(403).send(err.message);
     }
     //matcher.validateCurrency(currency);
   } catch (err) {
-    res.status(400).send(err.toString());
+    res.status(400).send(err.message);
   }
 });
 
@@ -216,6 +227,6 @@ app.delete("/user/:username/orders/", function (req, res) {
     const response = dataPackage(username);
     res.status(200).send(response);
   } catch (err) {
-    res.status(400).send(err.toString());
+    res.status(400).send(err.message);
   }
 });

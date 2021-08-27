@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import type * as types from "src/types";
 import * as matcherActions from "src/reducer/matcherActions";
 import * as userActions from "src/reducer/userActions";
+import { selectUser, selectMatcher, selectSettings } from "src/app/selectors";
 import { RootState } from "src/app/store";
 import formStyle from "./userForm.module.css";
 import InputField from "./InputField";
@@ -10,13 +11,19 @@ import FixedInputField from "./FixedInputField";
 import DropDown from "src/elements/DropDown";
 
 const UserForm = () => {
-  const selectUser = (state: RootState): types.userState => state.user;
-  const selectMatcher = (state: RootState): types.matcherState => state.matcher;
-
   const dispatch = useDispatch();
 
   const userState = useSelector(selectUser);
-  const matcherState = useSelector(selectMatcher);
+  const settingsState = useSelector(selectSettings);
+
+  let ErrorMessage = "";
+  let AmountError = false;
+
+  if (settingsState.currentError.slice(0, 6) === "Amount") {
+    console.log("Amount");
+    ErrorMessage = settingsState.currentError;
+    AmountError = true;
+  }
 
   const [currency, setCurrency] = useState<types.currency>("GBP");
   const [amount, setAmount] = useState(0);
@@ -73,12 +80,14 @@ const UserForm = () => {
             type={"number"}
             value={amount}
             handleChange={handleAmountChange}
+            error={AmountError}
           />
         </li>
         <li className={formStyle.buttons}>
           <button onClick={topUp}>Top Up</button>
           <button onClick={withdraw}>Withdraw</button>
         </li>
+        <li className="errorMessage">{ErrorMessage}</li>
       </ul>
     </div>
   );

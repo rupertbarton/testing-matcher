@@ -33,7 +33,7 @@ function Matcher() {
       console.log(err);
     }
     if (this.throwErrors) {
-      throw new Error(err);
+      throw new Error(err.message);
     }
   };
 
@@ -356,9 +356,9 @@ function Matcher() {
       username,
       volume,
       price,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
     };
-    order["id"] = order.username + order.timestamp.toISOString();
+    order["id"] = order.username + order.timestamp + Math.random();
     try {
       this.validateOrder(order);
     } catch (err) {
@@ -378,7 +378,7 @@ function Matcher() {
       seller: sellOrder.username,
       volume,
       price: sellOrder.price,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       id: buyOrder.id + sellOrder.id,
     };
     /*//Manually break a trade, nobody should lose GBP or BTC

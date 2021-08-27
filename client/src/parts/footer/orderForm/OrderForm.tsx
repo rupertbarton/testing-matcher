@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type * as types from "src/types";
 import * as matcherActions from "src/reducer/matcherActions";
+import { selectUser, selectMatcher, selectSettings } from "src/app/selectors";
 import { RootState } from "src/app/store";
 import formStyle from "./orderForm.module.css";
 import InputField from "./InputField";
@@ -9,13 +10,10 @@ import FixedInputField from "./FixedInputField";
 import DropDown from "src/elements/DropDown";
 
 const OrderForm = () => {
-  const selectUser = (state: RootState): types.userState => state.user;
-  const selectMatcher = (state: RootState): types.matcherState => state.matcher;
+  const userState = useSelector(selectUser);
+  const settingsState = useSelector(selectSettings);
 
   const dispatch = useDispatch();
-
-  const userState = useSelector(selectUser);
-  const matcherState = useSelector(selectMatcher);
 
   const [price, setPrice] = useState(0);
   const [volume, setVolume] = useState(0);
@@ -30,6 +28,18 @@ const OrderForm = () => {
   const handleActionChange = (e: any) => {
     setAction(e.target.value);
   };
+
+  let ErrorMessage = "";
+  let PriceError = false;
+  let VolumeError = false;
+
+  if (settingsState.currentError.slice(0, 5) === "Price") {
+    ErrorMessage = settingsState.currentError;
+    PriceError = true;
+  } else if (settingsState.currentError.slice(0, 6) === "Volume") {
+    ErrorMessage = settingsState.currentError;
+    VolumeError = true;
+  }
 
   const submitForm = () => {
     const newOrder: types.order = {
@@ -68,6 +78,7 @@ const OrderForm = () => {
             type={"number"}
             value={price}
             handleChange={handlePriceChange}
+            error={PriceError}
           />
         </li>
         <li>
@@ -76,10 +87,12 @@ const OrderForm = () => {
             type={"number"}
             value={volume}
             handleChange={handleVolumeChange}
+            error={VolumeError}
           />
         </li>
 
         <button onClick={submitForm}>Submit</button>
+        <li className="errorMessage">{ErrorMessage}</li>
       </ul>
     </div>
   );
