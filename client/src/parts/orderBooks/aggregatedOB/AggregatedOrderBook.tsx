@@ -2,6 +2,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type * as types from "src/types";
 import { RootState } from "src/app/store";
+import { selectUser, selectMatcher, selectSettings } from "src/app/selectors";
 import ListItem from "src/elements/listItem";
 import ListHeading from "src/elements/listHeading";
 import * as matcherActions from "src/reducer/matcherActions";
@@ -10,9 +11,6 @@ import aobStyle from "./aggregatedOB.module.css";
 type stringOrNumber = string | number;
 
 const AggregatedOrderBook = () => {
-  const selectUser = (state: RootState): types.userState => state.user;
-  const selectMatcher = (state: RootState): types.matcherState => state.matcher;
-
   const userState = useSelector(selectUser);
   const matcherState = useSelector(selectMatcher);
 

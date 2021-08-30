@@ -85,7 +85,7 @@ const OrderDisplay = () => {
     });*/
 
     return (
-      <div>
+      <div className={formStyle.orderForm}>
         <div className={formStyle.topRow}>
           <button onClick={() => dispatch(setCurrentObject(undefined))}>
             X
@@ -99,11 +99,7 @@ const OrderDisplay = () => {
     );
   };
 
-  return (
-    <div className={formStyle.orderForm}>
-      <DisplayOrder currentObject={settingsState.currentObject} />
-    </div>
-  );
+  return <DisplayOrder currentObject={settingsState.currentObject} />;
 };
 
 export default OrderDisplay;

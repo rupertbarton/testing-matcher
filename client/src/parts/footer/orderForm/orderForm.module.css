@@ -9,6 +9,8 @@
 }
 
 .orderForm button {
+  font-size: inherit;
+  font-family: inherit;
   background-color: black;
   color: inherit;
   height: 1.7rem;
@@ -23,14 +25,14 @@
 
 .orderForm input {
   font-family: inherit;
-  font-size: 1rem;
+  font-size: inherit;
 }
 
 .orderForm li {
   list-style: none;
   display: flex;
   flex-direction: row;
-  padding-bottom: 5px;
+  padding-bottom: 0.5vh;
 }
 
 .orderForm .fieldName {
@@ -42,9 +44,10 @@
 
 .orderForm input {
   width: 40%;
+  font-size: inherit;
 }
 
 .orderForm h3 {
-  margin-top: 5px;
+  margin-top: 0px;
   margin-bottom: 5px;
 }

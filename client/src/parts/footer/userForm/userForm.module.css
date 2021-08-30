@@ -18,10 +18,12 @@
   list-style: none;
   display: flex;
   flex-direction: row;
-  padding-bottom: 5px;
+  padding-bottom: 0.5vh;
 }
 
 .buttons button {
+  font-size: inherit;
+  font-family: inherit;
   background-color: black;
   color: inherit;
   height: 1.7rem;
@@ -44,10 +46,10 @@
 .userForm input {
   width: 40%;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: inherit;
 }
 
 .userForm h3 {
-  margin-top: 5px;
+  margin-top: 0px;
   margin-bottom: 5px;
 }

@@ -40,7 +40,6 @@
 }
 
 .aggregatedOrderBook li {
-  font-size: 1rem;
   background-color: black;
   border-bottom: 1px solid honeydew;
   display: grid;

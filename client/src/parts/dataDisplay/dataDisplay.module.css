@@ -1,4 +1,41 @@
 .dataDisplay {
+  display: flex;
+  flex-direction: column-reverse;
   width: 60%;
   background-color: rgb(46, 46, 46);
+}
+
+.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 70px;
+  height: 55px;
+  padding: 2px;
+  font-size: 11pt;
+  background: rgba(0, 0, 0, 0.425);
+  border: 3px double rgba(240, 255, 240, 0.795);
+  pointer-events: none;
+}
+
+.buy span {
+  font: inherit;
+  font-weight: bold;
+  color: #7bff7b;
+}
+
+.sell span {
+  font: inherit;
+  font-weight: bold;
+  color: #ff7b7b;
+}
+
+#depthChart {
+  margin: 0px;
+  padding: 0px;
+  padding-top: 3px;
+  background-color: black;
+  color: inherit;
+  height: 40%;
+  width: 100%;
+  border-top: 3px double #f0fff0e6;
 }

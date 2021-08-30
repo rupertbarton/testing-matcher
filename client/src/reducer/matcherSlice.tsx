@@ -10,13 +10,6 @@ const initialState: types.matcherState = {
   tradeHistory: [],
 };
 
-/*export const addOrder = createAsyncThunk(
-  "matcher/addOrder",
-  async (order, thunkAPI) => {
-    const matcherState = thunkAPI.getState();
-  }
-);*/
-
 const matcherSlice = createSlice({
   name: "matcher",
   initialState,
