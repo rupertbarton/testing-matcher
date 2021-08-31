@@ -52,7 +52,9 @@ const OrderDisplay = () => {
       objectInfo = keys.map((key: types.tradekey) => {
         if (key in currentObject) {
           const value = currentObject[key] as string | number | Date;
-          return <DisplayField mykey={key} value={value} />;
+          return (
+            <DisplayField key={key + "display"} mykey={key} value={value} />
+          );
         }
       });
     } else if ("username" in currentObject) {
@@ -67,7 +69,9 @@ const OrderDisplay = () => {
       objectInfo = keys.map((key: types.orderkey) => {
         if (key in currentObject) {
           const value = currentObject[key] as string | number | Date;
-          return <DisplayField mykey={key} value={value} />;
+          return (
+            <DisplayField key={key + "display"} mykey={key} value={value} />
+          );
         }
       });
     }

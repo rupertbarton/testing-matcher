@@ -6,7 +6,6 @@ type stringOrNumber = string | number;
 
 const ListHeading = (props: { data: stringOrNumber[]; class?: string }) => {
   const data = props.data;
-  console.log(props.class);
   let formattedData = data.map((datum) => <div>{datum}</div>);
   if (props.class) {
     return (

@@ -2,78 +2,24 @@ import React, { useEffect } from "react";
 //import type * as d3Types from "./d3Types";
 import * as d3 from "d3";
 import dataStyle from "../dataDisplay.module.css";
+import { formatData, cumulateData } from "./formatData";
 
-export const LineChart = (props) => {
+export const DepthChart = (props) => {
   const { data, width, height } = props;
 
   useEffect(() => {
     drawChart();
-  }, [data]);
-
-  function formatData(data) {
-    const buyPrices = Object.keys(data.Buy);
-    const sellPrices = Object.keys(data.Sell);
-    const buyData = buyPrices.map((price) => {
-      return {
-        price: Number(price),
-        volume: Number(data.Buy[price]),
-      };
-    });
-    const sellData = sellPrices.map((price) => {
-      return {
-        price: Number(price),
-        volume: Number(data.Sell[price]),
-      };
-    });
-    const formattedData = { buyData, sellData };
-    return formattedData;
-  }
-
-  function cumulateData(formattedData, xmin, xmax, action, aggregation = 0.2) {
-    let cumulativeData = [];
-    for (let i = Math.floor(xmin); i < xmax + 1; i += aggregation) {
-      if (action === "Sell") {
-        const lowerPrice = formattedData.filter((datum) => datum.price <= i);
-        let volume = 0;
-        for (let datum of lowerPrice) {
-          volume += datum.volume;
-        }
-        const newDataPoint = {
-          price: i,
-          volume: volume,
-          tooltipContent: `<span>Sell orders</span><br><b>Price: </b>${Number(
-            Math.round(i + "e2") + "e-2"
-          )}<br><b>Volume: </b>${volume}</div>`,
-        };
-        cumulativeData.push(newDataPoint);
-      } else if (action === "Buy") {
-        const higherPrice = formattedData.filter((datum) => datum.price >= i);
-        let volume = 0;
-        for (let datum of higherPrice) {
-          volume += datum.volume;
-        }
-        const newDataPoint = {
-          price: i,
-          volume: volume,
-          tooltipContent: `<span>Buy orders</span><br><b>Price: </b>${Number(
-            Math.round(i + "e2") + "e-2"
-          )}<br><b>Volume: </b>${volume}`,
-        };
-        cumulativeData.push(newDataPoint);
-      }
-    }
-    return cumulativeData;
-  }
+  }, [data, width, height]);
 
   function drawChart() {
     d3.select("#depthContainer").select("svg").remove();
-    d3.select("#depthContainer").select(".tooltip").remove();
+    d3.selectAll(".dataDisplay_tooltip__2OtE5").remove();
 
     const formattedData = formatData(data);
 
-    const margin = { top: 0, bottom: 35, left: 40, right: 5 };
+    const margin = { top: 0, bottom: 18, left: 28, right: 15 };
 
-    const xMinValue = d3.min(formattedData.buyData, (d) => d.price) - 1;
+    const xMinValue = 0; //d3.min(formattedData.buyData, (d) => d.price) - 1;
     const xMaxValue = d3.max(formattedData.sellData, (d) => d.price) + 1;
 
     const buyPoints = cumulateData(
@@ -93,22 +39,39 @@ export const LineChart = (props) => {
     const yMinValue = 0;
     const yMaxValue = d3.max(sellPoints, (d) => d.volume) + 5;
 
-    const offset = yMaxValue / height;
+    const offsetx = xMaxValue / width;
+    const offsety = yMaxValue / height;
 
     const buyPointsHigh = buyPoints.map((point) => {
-      return { ...point, volume: point.volume + offset };
+      return {
+        ...point,
+        price: point.price + offsetx,
+        volume: point.volume + offsety,
+      };
     });
 
     const buyPointsLow = buyPoints.map((point) => {
-      return { ...point, volume: point.volume - offset };
+      return {
+        ...point,
+        price: point.price - offsetx,
+        volume: point.volume - offsety,
+      };
     });
 
     const sellPointsHigh = sellPoints.map((point) => {
-      return { ...point, volume: point.volume + offset };
+      return {
+        ...point,
+        price: point.price - 2 * offsetx,
+        volume: point.volume + offsety,
+      };
     });
 
     const sellPointsLow = sellPoints.map((point) => {
-      return { ...point, volume: point.volume - offset };
+      return {
+        ...point,
+        vprice: point.price + offsetx,
+        volume: point.volume - offsety,
+      };
     });
 
     const svg = d3
@@ -144,6 +107,8 @@ export const LineChart = (props) => {
       .select("body")
       .append("div")
       .attr("class", dataStyle.tooltip)
+      .style("left", "100px")
+      .style("top", "100px")
       .style("opacity", 0);
 
     const focus = svg
@@ -168,7 +133,7 @@ export const LineChart = (props) => {
       if (sellPoint.volume > buyPoint.volume) {
         const d0 = sellPoint;
 
-        focus.style("opacity", 1);
+        focus.style("opacity", 1).raise();
 
         focus.style(
           "transform",
@@ -180,7 +145,7 @@ export const LineChart = (props) => {
           .classed(dataStyle.buy, false)
           .classed(dataStyle.sell, true)
           .html(d0.tooltipContent || d0.price)
-          .style("left", event.pageX + "px")
+          .style("left", event.pageX + 15 + "px")
           .style("top", event.pageY - 35 + "px");
       } else {
         const d0 = buyPoint;
@@ -197,7 +162,7 @@ export const LineChart = (props) => {
           .classed(dataStyle.sell, false)
           .classed(dataStyle.buy, true)
           .html(d0.tooltipContent || d0.price)
-          .style("left", event.pageX + "px")
+          .style("left", event.pageX + 15 + "px")
           .style("top", event.pageY - 35 + "px");
       }
     }
@@ -210,10 +175,10 @@ export const LineChart = (props) => {
         d3
           .axisBottom(xScale)
           .scale(xScale)
-          .ticks(width / 25)
+          .ticks(width / 50)
       );
 
-    svg
+    /*svg
       .append("text")
       .attr("x", width / 2)
       .attr("y", height + margin.bottom - 3)
@@ -228,7 +193,16 @@ export const LineChart = (props) => {
       .attr("y", -margin.left + 10)
       .style("text-anchor", "middle")
       .style("fill", "#f0fff0")
-      .text("Cum. Volume");
+      .text("Cum. Volume");*/
+
+    svg
+      .append("text")
+      .attr("x", width / 2)
+      .attr("y", height / 7)
+      .style("text-anchor", "middle")
+      .style("font-size", "18px")
+      .style("fill", "#707070")
+      .text("Depth Chart");
 
     svg
       .append("g")
@@ -300,6 +274,7 @@ export const LineChart = (props) => {
         focus.style("opacity", 1);
       })
       .on("mouseout", () => {
+        focus.style("opacity", 0);
         tooltip.transition().duration(300).style("opacity", 0);
       })
       .on("mousemove", mousemove);

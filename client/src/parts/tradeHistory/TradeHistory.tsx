@@ -44,7 +44,7 @@ const TradeHistory = () => {
       <ul>
         <h3>{"Trade history"}</h3>
         <ListHeading key={"Tradekey"} data={["Volume", "Price"]} />
-        {tradeList}
+        {tradeList.slice(0, 20)}
       </ul>
     </div>
   );

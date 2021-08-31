@@ -94,3 +94,21 @@ export interface anonResponse {
   aggregatedOrderBook: aggregatedOB;
   tradeHistory: trade[];
 }
+
+export interface formattedDatum {
+  price: number;
+  volume: number;
+}
+
+export interface formattedData {
+  buyData: formattedDatum[];
+  sellData: formattedDatum[];
+}
+
+export interface candle {
+  direction: "up" | "down" | "flat";
+  high: number;
+  open: number;
+  close: number;
+  low: number;
+}

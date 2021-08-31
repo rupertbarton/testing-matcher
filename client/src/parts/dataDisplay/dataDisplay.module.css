@@ -1,6 +1,6 @@
 .dataDisplay {
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   width: 60%;
   background-color: rgb(46, 46, 46);
 }
@@ -12,7 +12,20 @@
   height: 55px;
   padding: 2px;
   font-size: 11pt;
-  background: rgba(0, 0, 0, 0.425);
+  background: rgba(0, 0, 0, 0.725);
+  border: 3px double rgba(240, 255, 240, 0.795);
+  pointer-events: none;
+}
+
+.candletip {
+  text-align: center;
+  width: 70px;
+  height: 80px;
+  padding: 2px;
+  font-family: "Agency FB";
+  font-size: 11pt;
+  font-weight: normal;
+  color: honeydew;
   border: 3px double rgba(240, 255, 240, 0.795);
   pointer-events: none;
 }
@@ -30,6 +43,7 @@
 }
 
 #depthChart {
+  text-align: right;
   margin: 0px;
   padding: 0px;
   padding-top: 3px;
@@ -38,4 +52,16 @@
   height: 40%;
   width: 100%;
   border-top: 3px double #f0fff0e6;
+}
+
+#candleChart {
+  text-align: right;
+  margin: 0px;
+  padding: 0px;
+  padding-top: 3px;
+  background-color: black;
+  color: inherit;
+  height: 60%;
+  width: 100%;
+  border-bottom: 3px double #f0fff0e6;
 }
