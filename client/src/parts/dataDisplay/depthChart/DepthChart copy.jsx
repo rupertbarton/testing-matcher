@@ -39,41 +39,6 @@ export const DepthChart = (props) => {
     const yMinValue = 0;
     const yMaxValue = d3.max(sellPoints, (d) => d.volume) + 5;
 
-    const offsetx = xMaxValue / width;
-    const offsety = yMaxValue / height;
-
-    const buyPointsHigh = buyPoints.map((point) => {
-      return {
-        ...point,
-        price: point.price + offsetx,
-        volume: point.volume + offsety,
-      };
-    });
-
-    const buyPointsLow = buyPoints.map((point) => {
-      return {
-        ...point,
-        price: point.price - offsetx,
-        volume: point.volume - offsety,
-      };
-    });
-
-    const sellPointsHigh = sellPoints.map((point) => {
-      return {
-        ...point,
-        price: point.price - 2 * offsetx,
-        volume: point.volume + offsety,
-      };
-    });
-
-    const sellPointsLow = sellPoints.map((point) => {
-      return {
-        ...point,
-        vprice: point.price + offsetx,
-        volume: point.volume - offsety,
-      };
-    });
-
     const svg = d3
       .select("#depthContainer")
       .append("svg")
@@ -188,23 +153,6 @@ export const DepthChart = (props) => {
           .tickSizeOuter(0)
       );
 
-    /*svg
-      .append("text")
-      .attr("x", width / 2)
-      .attr("y", height + margin.bottom - 3)
-      .style("text-anchor", "middle")
-      .style("fill", "#f0fff0")
-      .text("Price [GBP]");
-
-    svg
-      .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("x", -height / 2)
-      .attr("y", -margin.left + 10)
-      .style("text-anchor", "middle")
-      .style("fill", "#f0fff0")
-      .text("Cum. Volume");*/
-
     svg
       .append("text")
       .attr("x", width / 2)
@@ -216,19 +164,7 @@ export const DepthChart = (props) => {
 
     svg
       .append("path")
-      .datum(sellPointsLow)
-      .attr("d", area)
-      .attr("fill", "#ff7b7b88");
-
-    svg
-      .append("path")
-      .datum(buyPointsLow)
-      .attr("d", area)
-      .attr("fill", "#7bff7b88");
-
-    svg
-      .append("path")
-      .datum(sellPointsHigh)
+      .datum(sellPoints)
       .attr("fill", "none")
       .attr("stroke", "#ff7b7b")
       .attr("stroke-width", 1)
@@ -236,24 +172,7 @@ export const DepthChart = (props) => {
 
     svg
       .append("path")
-      .datum(sellPointsLow)
-      .attr("fill", "none")
-      .attr("stroke", "#ff7b7b")
-      .attr("stroke-width", 1)
-      .attr("d", line);
-
-    svg
-      .append("path")
-      .datum(buyPointsHigh)
-      .attr("fill", "none")
-      .attr("stroke", "#7bff7b")
-      .attr("stroke-width", 1)
-      .attr("class", "line")
-      .attr("d", line);
-
-    svg
-      .append("path")
-      .datum(buyPointsLow)
+      .datum(buyPoints)
       .attr("fill", "none")
       .attr("stroke", "#7bff7b")
       .attr("stroke-width", 1)

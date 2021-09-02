@@ -154,6 +154,7 @@ export const CandleChart = (props) => {
       .style("opacity", 0)
       .on("mouseover", function (event, d) {
         const i = event.currentTarget.id; //this.getAttribute("index");
+        //d3.select(this).style("opacity", "1");
         d3.select("#candletip" + i)
           .transition()
           .duration(50)
@@ -165,7 +166,7 @@ export const CandleChart = (props) => {
         d3.select("#candletip" + i)
           .transition()
           .duration(300)
-          .style("opacity", 0);
+          .style("opacity", "0");
         //candletip.transition().duration(300).style("opacity", 0);
       });
 
