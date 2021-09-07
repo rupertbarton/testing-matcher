@@ -9,7 +9,7 @@ const httpServer = createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -47,6 +47,26 @@ io.on("connection", (socket) => {
     socket.join(username);
     sendData(socketPackage, username);
     currentUser = username;
+  });
+
+  socket.on("topUp", (JSONstring) => {
+    try {
+      const { currency, amount } = JSON.parse(JSONstring);
+      matcher.topUp(currentUser, amount, currency);
+      sendData(socketPackage, currentUser);
+    } catch (err) {
+      io.to(ID).emit("error", err.message);
+    }
+  });
+
+  socket.on("withdraw", (JSONstring) => {
+    try {
+      const { currency, amount } = JSON.parse(JSONstring);
+      matcher.withdraw(currentUser, amount, currency);
+      sendData(socketPackage, currentUser);
+    } catch (err) {
+      io.to(ID).emit("error", err.message);
+    }
   });
 
   socket.on("addOrder", (JSONstring) => {

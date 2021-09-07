@@ -18,19 +18,33 @@ export const initialiseSocket = () => {
 };
 
 export const switchUserSocket = (username: string) => {
+  dispatch(settingsActions.setCurrentError(""));
   socket.emit("switchUser", username);
 };
 
 export const deleteOrderSocket = (id: string) => {
+  dispatch(settingsActions.setCurrentError(""));
   socket.emit("deleteOrder", id);
 };
 
 export const deleteAllOrderSocket = (username: string) => {
+  dispatch(settingsActions.setCurrentError(""));
   socket.emit("deleteAllOrders", username);
 };
 
 export const addOrderSocket = (order: types.order) => {
+  dispatch(settingsActions.setCurrentError(""));
   socket.emit("addOrder", JSON.stringify(order));
+};
+
+export const topUpSocket = (currency: types.currency, amount: number) => {
+  dispatch(settingsActions.setCurrentError(""));
+  socket.emit("topUp", JSON.stringify({ currency, amount }));
+};
+
+export const withdrawSocket = (currency: types.currency, amount: number) => {
+  dispatch(settingsActions.setCurrentError(""));
+  socket.emit("withdraw", JSON.stringify({ currency, amount }));
 };
 
 socket.on("aggregatedOB", (JSONstring) => {
@@ -51,4 +65,9 @@ socket.on("tradeHistory", (JSONstring) => {
 socket.on("userData", (JSONstring) => {
   const userData: types.userData = JSON.parse(JSONstring);
   dispatch(userActions.setBalance(userData));
+});
+
+socket.on("error", (err) => {
+  //console.log(err);
+  dispatch(settingsActions.setCurrentError(err));
 });

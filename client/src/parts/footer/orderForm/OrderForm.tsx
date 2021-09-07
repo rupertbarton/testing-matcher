@@ -65,7 +65,9 @@ const OrderForm = () => {
           <FixedInputField type={"text"} value={userState.currentUser} />
         </li>
         <li>
-          <div className={formStyle.fieldName}>Action:</div>
+          <div id={"actionField"} className={formStyle.fieldName}>
+            Action:
+          </div>
           <DropDown
             value={action}
             options={["Buy", "Sell"]}

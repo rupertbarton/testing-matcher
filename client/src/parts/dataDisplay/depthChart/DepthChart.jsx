@@ -39,6 +39,13 @@ export const DepthChart = (props) => {
     const yMinValue = 0;
     const yMaxValue = d3.max(sellPoints, (d) => d.volume) + 5;
 
+    const buyStripped = buyPoints.filter((d) => d.volume !== 0);
+    const sellStripped = sellPoints.filter((d) => d.volume !== 0);
+    const maxBuyPrice = buyStripped[buyStripped.length - 1]?.price;
+    const minSellPrice = sellStripped[0]?.price;
+    const marketPrice =
+      Math.round(((maxBuyPrice + minSellPrice) * 100) / 2) / 100;
+
     const offsetx = xMaxValue / width;
     const offsety = yMaxValue / height;
 
@@ -208,11 +215,20 @@ export const DepthChart = (props) => {
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", height / 7)
+      .attr("y", height / 7 + 15)
       .style("text-anchor", "middle")
       .style("font-size", "18px")
+      .style("fill", "honeydew")
+      .text("£" + marketPrice.toFixed(2));
+
+    svg
+      .append("text")
+      .attr("x", width / 2)
+      .attr("y", height / 9)
+      .style("text-anchor", "middle")
+      .style("font-size", "16px")
       .style("fill", "#707070")
-      .text("Depth Chart");
+      .text("Mid-market price");
 
     svg
       .append("path")
