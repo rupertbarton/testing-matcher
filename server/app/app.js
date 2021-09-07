@@ -1,284 +1,104 @@
-var express = require("express");
+const { sendData } = require("./responses");
+const express = require("express");
 var bodyParser = require("body-parser");
-var app = express();
+const app = express();
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  next();
+const { createServer } = require("http");
+const httpServer = createServer(app);
+
+const { Server } = require("socket.io");
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
 });
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 const Matcher = require("./matcher");
+const { initialiseMatcher } = require("./initialise");
+const { disconnect } = require("process");
 
 let matcher = new Matcher();
 
-matcher.createAccount("Andrea", 500, 500);
-matcher.createAccount("Bob", 500, 500);
-matcher.createAccount("Catherine", 500, 500);
-matcher.createAccount("Doug", 500, 500);
-matcher.createAccount("Elliott", 500, 500);
+initialiseMatcher(matcher);
 
-let accounts = ["Andrea", "Bob", "Catherine", "Doug"];
-let prices = [5, 4, 3, 2, 1];
-let offset = [0.2, 0.5, 0.1];
-let volumes = [5, 10, 15, 10];
-for (let i = 0; i < 50; i++) {
-  let newOrder = matcher.createOrder(
-    accounts[i % 4],
-    matcher.buy,
-    volumes[i % 4],
-    prices[i % 5]
-  );
-  matcher.processOrder(newOrder);
-}
-
-prices = [4, 5, 6, 7, 8];
-for (let i = 0; i < 50; i++) {
-  let newOrder = matcher.createOrder(
-    accounts[i % 4],
-    matcher.sell,
-    volumes[i % 4],
-    prices[i % 5]
-  );
-  matcher.processOrder(newOrder);
-}
-
-for (let i = 0; i < 50; i++) {
-  let newOrder = matcher.createOrder(
-    accounts[i % 4],
-    matcher.buy,
-    volumes[i % 4],
-    prices[i % 5] + offset[i % 3]
-  );
-  matcher.processOrder(newOrder);
-}
-
-prices = [4, 5, 6, 7, 8];
-for (let i = 0; i < 50; i++) {
-  let newOrder = matcher.createOrder(
-    accounts[i % 4],
-    matcher.sell,
-    volumes[i % 4],
-    prices[i % 5] - offset[i % 3]
-  );
-  matcher.processOrder(newOrder);
-}
-
-for (let i = 0; i < 10; i++) {
-  let newOrder = matcher.createOrder(
-    accounts[i % 4],
-    matcher.buy,
-    volumes[i % 4],
-    prices[i % 5] + offset[i % 3]
-  );
-  matcher.processOrder(newOrder);
-}
-
-for (let i = 0; i < 50; i++) {
-  let newOrder = matcher.createOrder(
-    accounts[i % 4],
-    matcher.buy,
-    volumes[i % 4],
-    prices[i % 5] + 5 * offset[i % 3]
-  );
-  matcher.processOrder(newOrder);
-}
-
-for (let i = 0; i < 50; i++) {
-  let newOrder = matcher.createOrder(
-    accounts[i % 4],
-    matcher.sell,
-    volumes[i % 4],
-    prices[i % 5] - offset[i % 3]
-  );
-  matcher.processOrder(newOrder);
-}
-
-matcher.throwErrors = true;
-//matcher.errorMessages = true;
-
-const dataPackage = (username) => {
-  const aggregatedOrderBook = {
-    Buy: matcher.aggregatedBuyOrders,
-    Sell: matcher.aggregatedSellOrders,
-  };
-  const personalOrderBook = matcher.getPrivateBook(username);
-  const tradeHistory = matcher.tradeHistory;
-  const userData = matcher.accountList[username];
-  const response = {
-    aggregatedOrderBook,
-    personalOrderBook,
-    tradeHistory,
-    userData,
-  };
-  return response;
-};
-
-var server = app.listen(3001, function () {
-  console.log("app running on port.", server.address().port);
+app.get("/", (req, res) => {
+  res.send("Bitcoin Server");
 });
 
-app.get("/", function (req, res) {
-  res
-    .status(200)
-    .send(
-      "Welcome to our matcher! " +
-        matcher.buy +
-        "! " +
-        matcher.sell +
-        "! Profit!"
-    );
-});
+io.on("connection", (socket) => {
+  console.log("User connected with id" + socket.id);
+  const ID = socket.id;
+  let currentUser;
+  socketPackage = { socket, io, matcher };
 
-app.get("/users", function (req, res) {
-  currentUsers = Object.keys(matcher.accountList);
-  /*userTable = "";
-  for (let user of currentUsers) {
-    userTable +=
-      user +
-      " has £" +
-      matcher.accountList[user].GBP +
-      " and " +
-      matcher.accountList[user].BTC +
-      " BTC \n ";
-  }*/
-  res.status(200).send(currentUsers);
-});
+  socket.on("initialise", (username) => {
+    console.log("initialising");
+    currentUser = username;
+    socket.join(currentUser);
+    sendData(socketPackage, currentUser);
+  });
 
-app.get("/user/:username", function (req, res) {
-  let username = req.params.username;
-  try {
-    matcher.validateExistingUsername(username);
-    const response = dataPackage(username);
-    res.status(200).send(response);
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
+  socket.on("switchUser", (username) => {
+    socket.leave(currentUser);
+    socket.join(username);
+    sendData(socketPackage, username);
+    currentUser = username;
+  });
 
-app.get("/orders/buy", function (req, res) {
-  res.status(200).send(matcher.buyOrders.slice(0, 5));
-});
-
-app.get("/orders/sell", function (req, res) {
-  res.status(200).send(matcher.sellOrders.slice(0, 5));
-});
-
-app.get("/trades", function (req, res) {
-  res.status(200).send(matcher.tradeHistory);
-});
-
-app.get("/orders/aggregated", function (req, res) {
-  let Buy = matcher.aggregatedBuyOrders;
-  let Sell = matcher.aggregatedSellOrders;
-  let aggregatedOrderBook = { Buy, Sell };
-  res.status(200).send(aggregatedOrderBook);
-});
-
-app.get("/user/:username/orders", function (req, res) {
-  let username = req.params.username;
-  try {
-    const response = dataPackage(username);
-    res.status(200).send(response);
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-app.put("/user/:username/deposit/:currency", function (req, res) {
-  let username = req.params.username;
-  let currency = req.params.currency;
-  let amount = Number(req.body.amount);
-  try {
-    //matcher.validateCurrency(currency);
-    matcher.topUp(username, amount, currency);
-    res.status(200).send(matcher.accountList[username]);
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-app.put("/user/:username/withdraw/:currency", function (req, res) {
-  let username = req.params.username;
-  let currency = req.params.currency;
-  let amount = Number(req.body.amount);
-  console.log(amount);
-  try {
-    matcher.validateCurrency(currency);
-    matcher.withdraw(username, amount, currency);
-    res.status(200).send(matcher.accountList[username]);
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-app.post("/user", function (req, res) {
-  var username = req.query.username;
-  var startingGBP = Number(req.query.startingGBP);
-  var startingBTC = Number(req.query.startingBTC);
-  try {
-    matcher.createAccount(username, startingGBP, startingBTC);
-    res.status(201).send(matcher.accountList[username]);
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-app.post("/user/:username/order", function (req, res) {
-  var username = req.params.username;
-  var action = req.body.action;
-  var volume = Number(req.body.volume);
-  var price = Number(req.body.price);
-  try {
-    let newOrder = matcher.createOrder(username, action, volume, price);
-    matcher.processOrder(newOrder);
-    const response = dataPackage(username);
-    res.status(201).send(response);
-  } catch (err) {
-    console.log("Error");
-    res.status(400).send(err.message);
-  }
-});
-
-app.delete("/user/:username/orders/:Orderid", function (req, res) {
-  let username = req.params.username;
-  let id = req.params.Orderid;
-  try {
-    action = matcher.validateExistingOrderId(id);
-    let order;
-    if (action === matcher.buy) {
-      order = matcher.buyOrders.find((order) => order.id === id);
-    } else if (action === matcher.sell) {
-      order = matcher.sellOrders.find((order) => order.id === id);
-    }
+  socket.on("addOrder", (JSONstring) => {
     try {
-      if (order.username !== username) {
-        throw new Error("Cannot cancel someone else's order");
-      } else {
-        matcher.cancelOrder(id);
-        const response = dataPackage(username);
-        res.status(200).send(response);
-      }
+      const orderData = JSON.parse(JSONstring);
+      let newOrder = matcher.createOrder(
+        orderData.username,
+        orderData.action,
+        orderData.volume,
+        orderData.price
+      );
+      matcher.processOrder(newOrder);
+      sendData(socketPackage);
     } catch (err) {
-      res.status(403).send(err.message);
+      io.to(ID).emit("error", err.message);
     }
-    //matcher.validateCurrency(currency);
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
+  });
+
+  socket.on("deleteOrder", (id) => {
+    try {
+      const action = matcher.validateExistingOrderId(id);
+      let order;
+      if (action === matcher.buy) {
+        order = matcher.buyOrders.find((order) => order.id === id);
+      } else if (action === matcher.sell) {
+        order = matcher.sellOrders.find((order) => order.id === id);
+      }
+      if (order.username !== currentUser) {
+        throw new Error("Cannot cancel someone else's order");
+      }
+      matcher.cancelOrder(id);
+      sendData(socketPackage);
+    } catch (err) {
+      io.to(ID).emit("error", err.message);
+    }
+  });
+
+  socket.on("deleteAllOrders", (username) => {
+    try {
+      if (username !== currentUser) {
+        throw new Error("Cannot cancel someone else's order");
+      }
+      matcher.cancelAllOrders(username);
+      sendData(socketPackage);
+    } catch (err) {
+      io.to(ID).emit("error", err.message);
+    }
+  });
+
+  socket.on("disconnect", () => console.log("disconnected"));
 });
 
-app.delete("/user/:username/orders/", function (req, res) {
-  let username = req.params.username;
-  try {
-    matcher.cancelAllOrders(username);
-    const response = dataPackage(username);
-    res.status(200).send(response);
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
+httpServer.listen(3001, () => {
+  console.log(`socket.io server listening on port 3001`);
 });

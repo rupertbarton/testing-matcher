@@ -73,7 +73,9 @@ const OrderForm = () => {
           />
         </li>
         <li>
-          <div className={formStyle.fieldName}>Price: </div>
+          <div id={"priceField"} className={formStyle.fieldName}>
+            Price:{" "}
+          </div>
           <InputField
             type={"number"}
             value={price}
@@ -82,7 +84,9 @@ const OrderForm = () => {
           />
         </li>
         <li>
-          <div className={formStyle.fieldName}>Volume: </div>
+          <div id={"volumeField"} className={formStyle.fieldName}>
+            Volume:{" "}
+          </div>
           <InputField
             type={"number"}
             value={volume}

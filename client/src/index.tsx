@@ -8,7 +8,7 @@ import * as serviceWorker from "./serviceWorker";
 import * as matcherActions from "./reducer/matcherActions";
 import type * as types from "./types";
 
-store.dispatch(matcherActions.getMatcherInfo());
+//store.dispatch(matcherActions.getMatcherInfo());
 
 ReactDOM.render(
   <React.StrictMode>

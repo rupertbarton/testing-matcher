@@ -1,6 +1,8 @@
+import { switchUserSocket } from "src/app/sagas/sockets";
 import type * as type from "../types";
 
 export const setUser = (username: string) => {
+  switchUserSocket(username);
   return {
     type: "user/setUser",
     payload: username,

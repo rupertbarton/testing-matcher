@@ -62,6 +62,15 @@ const PersonalOrderBook = () => {
           {buyList}
           {sellList}
         </div>
+        <div>
+          <button
+            onClick={() =>
+              matcherActions.cancelAllOrders(userState.currentUser)
+            }
+          >
+            Cancel All Orders
+          </button>
+        </div>
       </ul>
     </div>
   );

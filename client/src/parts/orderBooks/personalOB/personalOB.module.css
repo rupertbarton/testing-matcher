@@ -17,7 +17,7 @@
 
 .orderList {
   overflow-y: scroll;
-  max-height: 50%;
+  max-height: 45%;
 }
 
 .personalOrderBook li {
@@ -37,4 +37,19 @@
   padding-top: 0px;
   padding-bottom: 10px;
   text-decoration: underline 1px solid honeydew;
+}
+
+.personalOrderBook button {
+  font-size: inherit;
+  font-family: inherit;
+  background-color: black;
+  color: inherit;
+  height: 1.7rem;
+  border: 3px double rgba(240, 255, 240, 0.9);
+  margin-left: 1vh;
+}
+
+.personalOrderBook button:hover {
+  border-color: honeydew;
+  background: radial-gradient(rgb(0, 0, 0) 30%, rgb(68, 68, 68) 90%);
 }

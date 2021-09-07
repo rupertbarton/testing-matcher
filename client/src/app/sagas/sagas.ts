@@ -49,7 +49,7 @@ export function* watchGetOrdersAsync() {
   yield takeEvery("matcher/getMatcherInfo", getOrdersAsync);
 }
 
-function* setUserAsync(action: types.action<string>) {
+/*function* setUserAsync(action: types.action<string>) {
   yield put(settingsActions.setCurrentError(""));
   try {
     const response: types.response = yield fetchGetAccount(action.payload);
@@ -65,7 +65,7 @@ function* setUserAsync(action: types.action<string>) {
 
 export function* watchSetUserAsync() {
   yield takeEvery("user/setUser", setUserAsync);
-}
+}*/
 
 function* addOrderAsync(action: types.action<types.order>) {
   yield put(settingsActions.setCurrentError(""));
@@ -189,7 +189,7 @@ export default function* rootSaga() {
     watchCancelOrderAsync(),
     watchGetOrdersAsync(),
     watchCancelAllOrdersAsync(),
-    watchSetUserAsync(),
+    //watchSetUserAsync(),
     watchTopUpAsync(),
     watchWithdrawAsync(),
   ]);
