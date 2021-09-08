@@ -9,7 +9,7 @@ const httpServer = createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -49,6 +49,26 @@ io.on("connection", (socket) => {
     currentUser = username;
   });
 
+  socket.on("topUp", (JSONstring) => {
+    try {
+      const { currency, amount } = JSON.parse(JSONstring);
+      matcher.topUp(currentUser, amount, currency);
+      sendData(socketPackage, currentUser);
+    } catch (err) {
+      io.to(ID).emit("error", err.message);
+    }
+  });
+
+  socket.on("withdraw", (JSONstring) => {
+    try {
+      const { currency, amount } = JSON.parse(JSONstring);
+      matcher.withdraw(currentUser, amount, currency);
+      sendData(socketPackage, currentUser);
+    } catch (err) {
+      io.to(ID).emit("error", err.message);
+    }
+  });
+
   socket.on("addOrder", (JSONstring) => {
     try {
       const orderData = JSON.parse(JSONstring);
@@ -63,6 +83,42 @@ io.on("connection", (socket) => {
     } catch (err) {
       io.to(ID).emit("error", err.message);
     }
+  });
+
+  socket.on("addOrderBot", (JSONstring) => {
+    let buyPrices = Object.keys(matcher.aggregatedBuyOrders);
+    let sellPrices = Object.keys(matcher.aggregatedSellOrders);
+    buyPrices.sort((a, b) => Number(b) - Number(a));
+    sellPrices.sort((a, b) => Number(a) - Number(b));
+    const oldMarketPrice =
+      (Number(buyPrices[0] || 0.1) + Number(sellPrices[0] || 9.9)) / 2;
+
+    try {
+      const orderData = JSON.parse(JSONstring);
+      let newOrder = matcher.createOrder(
+        orderData.username,
+        orderData.action,
+        orderData.volume,
+        orderData.price
+      );
+      matcher.processOrder(newOrder);
+      sendData(socketPackage);
+    } catch (err) {
+      io.to(ID).emit("error", err.message);
+    }
+    buyPrices = Object.keys(matcher.aggregatedBuyOrders);
+    sellPrices = Object.keys(matcher.aggregatedSellOrders);
+    buyPrices.sort((a, b) => Number(b) - Number(a));
+    sellPrices.sort((a, b) => Number(a) - Number(b));
+    console.log(buyPrices[0]);
+    console.log(sellPrices[0]);
+    const newMarketPrice =
+      (Number(buyPrices[0] || 0.1) + Number(sellPrices[0] || 9.9)) / 2;
+    console.log("price", newMarketPrice);
+    io.to(ID).emit(
+      "botResponse",
+      JSON.stringify({ oldMarketPrice, newMarketPrice })
+    );
   });
 
   socket.on("deleteOrder", (id) => {

@@ -19,6 +19,7 @@ const AggregatedOrderBook = () => {
   const orderBookData = matcherState.aggregatedOrderBook;
   const orderBookBuyPrices = Object.keys(orderBookData.Buy);
   orderBookBuyPrices.sort((a, b) => Number(a) - Number(b));
+  orderBookBuyPrices.reverse();
   let buyList = orderBookBuyPrices
     .slice(0, 10)
     .map((strprice: stringOrNumber) => {
@@ -30,7 +31,7 @@ const AggregatedOrderBook = () => {
         />
       );
     });
-  buyList.reverse();
+  //buyList.reverse();
 
   const orderBookSellPrices = Object.keys(orderBookData.Sell);
   orderBookSellPrices.sort((a, b) => Number(a) - Number(b));

@@ -27,7 +27,7 @@ export function cumulateData(
   aggregation = 0.01
 ) {
   let cumulativeData = [];
-  for (let i = Math.floor(xmin); i < xmax + 1; i += aggregation) {
+  for (let i = Math.floor(xmin); i < xmax; i += aggregation) {
     if (action === "Sell") {
       const lowerPrice = formattedData.filter((datum) => datum.price <= i);
       let volume = 0;
@@ -37,7 +37,7 @@ export function cumulateData(
       const newDataPoint = {
         price: i,
         volume: volume,
-        tooltipContent: `<span>Sell orders</span><br><b>Price: </b>${Number(
+        tooltipContent: `<span>Sell orders</span><br><b>Price: </b>£${Number(
           Math.round(Number(i + "e2")) + "e-2"
         )}<br><b>Volume: </b>${volume}</div>`,
       };
@@ -51,7 +51,7 @@ export function cumulateData(
       const newDataPoint = {
         price: i,
         volume: volume,
-        tooltipContent: `<span>Buy orders</span><br><b>Price: </b>${Number(
+        tooltipContent: `<span>Buy orders</span><br><b>Price: </b>£${Number(
           Math.round(Number(i + "e2")) + "e-2"
         )}<br><b>Volume: </b>${volume}`,
       };

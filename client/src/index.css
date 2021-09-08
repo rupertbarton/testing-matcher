@@ -27,7 +27,7 @@ code {
 header {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   font-family: "Broadway";
   height: 15vh;
   background-color: rgb(0, 0, 0);
@@ -51,15 +51,30 @@ header div h1 {
 
 header div h2 {
   margin-top: 0vh;
-  font-size: 4vh;
+  font-size: 3vh;
   text-shadow: 2px 1px gray;
   text-decoration: underline 1px double honeydew;
 }
 
 header div img {
-  height: 100%;
-  margin-left: 2vw;
-  margin-right: 2vw;
+  max-height: 100%;
+  max-width: 100%;
+  margin-left: 0vw;
+  margin-right: 0vw;
+}
+
+@media screen and (max-width: 700px) {
+  img {
+    width: 0%;
+  }
+
+  header div h1 {
+    font-size: 6vh;
+  }
+
+  header div h2 {
+    font-size: 2.3vh;
+  }
 }
 
 footer {
@@ -95,6 +110,43 @@ select {
 #depthContainer {
   margin: 0px;
   padding: 0px;
+}
+
+#candleSettings {
+  position: absolute;
+  background-color: black;
+  height: 3vh;
+  width: 5vw;
+  opacity: 40%;
+}
+
+#candleSettings:hover {
+  opacity: 60%;
+}
+
+#aggregationSettings {
+  position: absolute;
+  background-color: black;
+  text-align: center;
+  height: 3vh;
+  width: 11vw;
+  opacity: 40%;
+  user-select: none;
+}
+
+.candleButton {
+  border: 1px solid rgb(255, 255, 255);
+  color: white;
+  height: 2.5vh;
+  width: 2vw;
+  text-align: center;
+  opacity: 0.7;
+  margin-left: 0.8vw;
+  margin-right: 0.8vw;
+}
+
+.candleButton:hover {
+  opacity: 1;
 }
 
 .errorMessage {

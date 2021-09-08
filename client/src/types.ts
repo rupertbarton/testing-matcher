@@ -115,4 +115,5 @@ export interface candle {
   open: number;
   close: number;
   low: number;
+  time?: Date;
 }

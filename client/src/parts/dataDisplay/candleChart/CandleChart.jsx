@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 //import type * as d3Types from "./d3Types";
 import * as d3 from "d3";
 import dataStyle from "../dataDisplay.module.css";
@@ -7,18 +7,24 @@ import { isConstructorDeclaration } from "typescript";
 
 export const CandleChart = (props) => {
   const { data, width, height } = props;
+  const [highLow, setHighLow] = useState(true);
+  const [aggregation, setAggregation] = useState(2);
 
   useEffect(() => {
     drawChart();
-  }, [data]);
+  }, [data, highLow, aggregation]);
 
   function drawChart() {
+    console.log("aggregation", aggregation);
     d3.select("#candleContainer").select("svg").remove();
+    d3.select("#candleSettings").selectAll("*").remove();
+    d3.select("#aggregationSettings").selectAll("*").remove();
     //d3.select("#candleContainer").select(".tooltip").remove();
 
-    const candleData = formatCandleData(data);
+    const candleData = formatCandleData(data, aggregation);
+    const showHighLow = highLow ? 1 : 0;
 
-    const margin = { top: 10, bottom: 18, left: 28, right: 5 };
+    const margin = { top: 10, bottom: 18, left: 28, right: 10 };
 
     const xMinValue = 0;
     const xMaxValue = candleData.length * 5;
@@ -35,12 +41,14 @@ export const CandleChart = (props) => {
         .attr("transform", `translate(0,${height - margin.bottom / 2})`)
         .call(
           d3.axisBottom(xScale)
-          /*.tickValues(
-              d3.utcMonday
-                .every(width > 720 ? 1 : 2)
-                .range(data[0].date, data[data.length - 1].date)
-            )
-            .tickFormat(d3.utcFormat("%-m/%-d"))*/
+          //.ticks(d3.timeMinutes, 5)
+          //.tickFormat(d3.timeFormat("%H:%M:%S"))
+          // .tickValues(
+          //   d3.timeMinute
+          //     .every(width > 720 ? 1 : 2)
+          //     .range(currentTime - data.length * aggregation, currentTime)
+          // )
+          //.tickFormat(d3.utcFormat("%-m/%-d"))
         )
         .call((g) => g.select(".domain").remove());
 
@@ -68,6 +76,14 @@ export const CandleChart = (props) => {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     const xScale = d3
+      .scaleTime()
+      .range([margin.left, width - margin.right])
+      .domain([
+        candleData[0]?.time || 0,
+        candleData[candleData.length - 1]?.time || 1,
+      ]);
+
+    const tScale = d3
       .scaleLinear()
       .range([margin.left, width - margin.right])
       .domain([xMinValue, xMaxValue]);
@@ -96,28 +112,29 @@ export const CandleChart = (props) => {
       .style("fill", "#f0fff0")
       .text("Price [GBP]");
 
-    svg
-      .append("text")
-      .attr("x", width / 2)
-      .attr("y", height / 13)
-      .style("text-anchor", "middle")
-      .style("font-size", "18px")
-      .style("fill", "#707070")
-      .text("Trade History");
+    // svg
+    //   .append("text")
+    //   .attr("x", width / 2)
+    //   .attr("y", height / 13)
+    //   .style("text-anchor", "middle")
+    //   .style("font-size", "18px")
+    //   .style("fill", "#707070")
+    //   .text("Trade History");
 
     const g = svg
       .append("g")
-      .attr("stroke-linecap", "round")
+      .attr("stroke-linecap", "butt")
       .attr("stroke", "#f0fff0e6")
       .selectAll("g")
       .data(candleData)
       .join("g")
-      .attr("transform", (d, i) => `translate(${xScale(5 * i + 2.5)},0)`);
+      .attr("transform", (d, i) => `translate(${xScale(d.time)},0)`);
 
     g.append("line")
       .attr("x", 0)
       .attr("y1", (d) => yScale(d.low))
-      .attr("y2", (d) => yScale(d.high));
+      .attr("y2", (d) => yScale(d.high))
+      .attr("stroke-width", showHighLow);
 
     g.append("line")
       .attr("y1", (d) => yScale(d.open))
@@ -221,6 +238,57 @@ export const CandleChart = (props) => {
       .html((d) => `Low: £${d.low}`);
 
     candletip.raise();
+
+    const settings = d3
+      .select("#candleSettings")
+      .style("transform", `translate(${width - 50}px, ${-height - 25}px)`);
+
+    settings
+      .append("input")
+      .attr("type", "checkbox")
+      .property("checked", highLow)
+      .on("click", () => {
+        setHighLow(!highLow);
+      });
+
+    settings.append("text").text("Show high/low").style("font-size", "1.7vh");
+
+    const aggregationSettings = d3
+      .select("#aggregationSettings")
+      .style(
+        "transform",
+        `translate(${width / 2 - 20}px, ${(-height * 15) / 14}px)`
+      );
+
+    aggregationSettings
+      .append("input")
+      .attr("type", "button")
+      .attr("class", "candleButton")
+      .attr("value", "-")
+      .on("click", () => {
+        if (aggregation <= 2) {
+          setAggregation(aggregation * 2);
+        }
+      });
+
+    aggregationSettings.append("text").text("zoom");
+
+    aggregationSettings
+      .append("input")
+      .attr("type", "button")
+      .attr("class", "candleButton")
+      .attr("value", "+")
+      .on("click", () => {
+        if (aggregation >= 2) {
+          setAggregation(aggregation / 2);
+        }
+      });
   }
-  return <div id="candleContainer" />;
+  return (
+    <div>
+      <div id="candleContainer" />
+      <div id="candleSettings" />
+      <div id="aggregationSettings" />
+    </div>
+  );
 };
