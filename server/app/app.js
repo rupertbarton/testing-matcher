@@ -85,6 +85,42 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("addOrderBot", (JSONstring) => {
+    let buyPrices = Object.keys(matcher.aggregatedBuyOrders);
+    let sellPrices = Object.keys(matcher.aggregatedSellOrders);
+    buyPrices.sort((a, b) => Number(b) - Number(a));
+    sellPrices.sort((a, b) => Number(a) - Number(b));
+    const oldMarketPrice =
+      (Number(buyPrices[0] || 0.1) + Number(sellPrices[0] || 9.9)) / 2;
+
+    try {
+      const orderData = JSON.parse(JSONstring);
+      let newOrder = matcher.createOrder(
+        orderData.username,
+        orderData.action,
+        orderData.volume,
+        orderData.price
+      );
+      matcher.processOrder(newOrder);
+      sendData(socketPackage);
+    } catch (err) {
+      io.to(ID).emit("error", err.message);
+    }
+    buyPrices = Object.keys(matcher.aggregatedBuyOrders);
+    sellPrices = Object.keys(matcher.aggregatedSellOrders);
+    buyPrices.sort((a, b) => Number(b) - Number(a));
+    sellPrices.sort((a, b) => Number(a) - Number(b));
+    console.log(buyPrices[0]);
+    console.log(sellPrices[0]);
+    const newMarketPrice =
+      (Number(buyPrices[0] || 0.1) + Number(sellPrices[0] || 9.9)) / 2;
+    console.log("price", newMarketPrice);
+    io.to(ID).emit(
+      "botResponse",
+      JSON.stringify({ oldMarketPrice, newMarketPrice })
+    );
+  });
+
   socket.on("deleteOrder", (id) => {
     try {
       const action = matcher.validateExistingOrderId(id);

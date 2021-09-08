@@ -36,13 +36,14 @@ export const DepthChart = (props) => {
       "Sell"
     );
 
+    const alldata = buyPoints.concat(sellPoints);
     const yMinValue = 0;
-    const yMaxValue = d3.max(sellPoints, (d) => d.volume) + 5;
+    const yMaxValue = d3.max(alldata, (d) => d.volume) + 5;
 
     const buyStripped = buyPoints.filter((d) => d.volume !== 0);
     const sellStripped = sellPoints.filter((d) => d.volume !== 0);
-    const maxBuyPrice = buyStripped[buyStripped.length - 1]?.price;
-    const minSellPrice = sellStripped[0]?.price;
+    const maxBuyPrice = buyStripped[buyStripped.length - 1]?.price || 0.1;
+    const minSellPrice = sellStripped[0]?.price || 9.9;
     const marketPrice =
       Math.round(((maxBuyPrice + minSellPrice) * 100) / 2) / 100;
 

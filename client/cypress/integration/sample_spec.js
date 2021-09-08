@@ -16,6 +16,7 @@ describe("Test account system", () => {
     cy.contains("User details")
       .parent()
       .contains("GBP:")
+      .wait(1000)
       .then(($GBP) => {
         GBP = $GBP.text().replace("GBP: ", "");
 
@@ -57,7 +58,8 @@ describe("Test order system", () => {
       .parent()
       .find("select")
       .select("Elliott")
-      .should("have.value", "Elliott");
+      .should("have.value", "Elliott")
+      .wait(1000);
 
     cy.contains("User details").parent().contains("GBP:");
 

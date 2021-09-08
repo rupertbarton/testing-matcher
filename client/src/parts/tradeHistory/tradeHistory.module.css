@@ -23,6 +23,21 @@
   user-select: none;
 }
 
+.tradeHistory li:nth-of-type(2) {
+  background-color: black;
+  animation-name: flash;
+  animation-duration: 1s;
+}
+
+@keyframes flash {
+  from {
+    background-color: rgb(207, 209, 70);
+  }
+  to {
+    background-color: black;
+  }
+}
+
 .tradeHistory h3 {
   padding: 0px;
   margin: 0px;
