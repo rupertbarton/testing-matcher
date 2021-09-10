@@ -2,12 +2,8 @@ import { select, call, put, takeEvery, all } from "redux-saga/effects";
 import * as matcherActions from "src/reducer/matcherActions";
 import * as userActions from "src/reducer/userActions";
 import * as settingsActions from "src/reducer/settingsActions";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
 import type * as types from "src/types";
 import { selectMatcher, selectUser } from "../selectors";
-import PersonalOrderBook from "src/parts/orderBooks/personalOB/PersonalOrderBook";
-import OrderBooks from "src/parts/orderBooks/OrderBooks";
 import {
   fetchPostOrder,
   fetchDeleteOrder,
@@ -193,5 +189,4 @@ export default function* rootSaga() {
     watchTopUpAsync(),
     watchWithdrawAsync(),
   ]);
-  // code after all-effect
 }

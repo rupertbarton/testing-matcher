@@ -37,7 +37,7 @@ const ListItem = (props: {
   });
 
   return (
-    <li className="listItem">
+    <li key={Math.random()} className="listItem">
       {formattedData}
       {deleteButton(props.onDelete)}
     </li>
