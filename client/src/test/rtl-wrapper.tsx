@@ -28,6 +28,7 @@ const render = (
         userList: ["Andrea", "Bob"],
         currentUser: "Andrea",
         userBalance: { GBP: 100, BTC: 200 },
+        currentToken: 0,
       },
       settings: { currentObject: undefined, currentError: "" },
     },
