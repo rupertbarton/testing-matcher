@@ -1,19 +1,21 @@
-import {
-  switchUserSocket,
-  topUpSocket,
-  withdrawSocket,
-} from "src/app/sagas/sockets";
 import type * as type from "../types";
 
-export const setUser = (username: string, password: string = "password") => {
-  switchUserSocket(username, password);
+export const setUser = (username: string) => {
   return {
     type: "user/setUser",
     payload: username,
   };
 };
 
+export const login = (username: string, password: string = "password") => {
+  return {
+    type: "user/login",
+    payload: [username, password],
+  };
+};
+
 export const setToken = (token: Number) => {
+  console.log("setToken: ", token);
   return {
     type: "user/setToken",
     payload: token,
@@ -21,17 +23,15 @@ export const setToken = (token: Number) => {
 };
 
 export const topUp = (currency: type.currency, amount: number) => {
-  topUpSocket(currency, amount);
   return {
-    type: "user/topUp/deprecated",
+    type: "user/topUp",
     payload: [currency, amount],
   };
 };
 
 export const withdraw = (currency: type.currency, amount: number) => {
-  withdrawSocket(currency, amount);
   return {
-    type: "user/withdraw/deprecated",
+    type: "user/withdraw",
     payload: [currency, amount],
   };
 };

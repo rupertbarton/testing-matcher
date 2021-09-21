@@ -18,6 +18,7 @@ const UserForm = () => {
 
   let ErrorMessage = "";
   let AmountError = false;
+  let LoginError = false;
 
   if (settingsState.currentError.slice(0, 6) === "Amount") {
     console.log("Amount");
@@ -25,8 +26,16 @@ const UserForm = () => {
     AmountError = true;
   }
 
+  if (settingsState.currentError.slice(0, 7) === "Invalid") {
+    console.log("Login");
+    ErrorMessage = settingsState.currentError;
+    LoginError = true;
+  }
+
   const [currency, setCurrency] = useState<types.currency>("GBP");
   const [amount, setAmount] = useState(0);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleAmountChange = (e: any) => {
     setAmount(e.target.value);
@@ -35,7 +44,10 @@ const UserForm = () => {
     setCurrency(e.target.value);
   };
   const handleUserChange = (e: any) => {
-    dispatch(userActions.setUser(e.target.value));
+    console.log(username);
+    console.log(password);
+    dispatch(userActions.login(username, password));
+    setPassword("");
   };
 
   const topUp = () => {
@@ -50,18 +62,33 @@ const UserForm = () => {
 
   return (
     <div className={formStyle.userForm}>
-      <ul>
-        <h3>User details</h3>
+      <ul className={formStyle.loginForm}>
         <li>
           <div id={"userField"} className={formStyle.fieldName}>
             User:{" "}
           </div>
           <DropDown
-            value={userState.currentUser}
+            value={username}
             options={userState.userList}
-            handleChange={handleUserChange}
-          />{" "}
+            handleChange={(e) => {
+              console.log(e.target);
+              setUsername(e.target.value);
+            }}
+          />
+          <div className={formStyle.fieldName}>Password:</div>
+          <InputField
+            type={"password"}
+            value={password}
+            handleChange={(e) => {
+              setPassword(e.target.value);
+            }}
+            error={LoginError}
+          />
+          <button onClick={handleUserChange}>Login</button>
         </li>
+      </ul>
+      <ul>
+        <h3>Current User: {userState.currentUser}</h3>
         <li>
           <div className={formStyle.fieldName}>
             {"GBP: " + userState.userBalance.GBP}

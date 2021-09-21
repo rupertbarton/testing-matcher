@@ -1,14 +1,8 @@
-import {
-  addOrderSocket,
-  deleteAllOrderSocket,
-  deleteOrderSocket,
-} from "src/app/sagas/sockets";
 import type * as types from "src/types";
 
 export const addOrder = (newOrder: types.order): types.action<types.order> => {
-  addOrderSocket(newOrder);
   return {
-    type: "matcher/newOrder/deprecated",
+    type: "matcher/addOrder",
     payload: newOrder,
   };
 };
@@ -20,17 +14,15 @@ export const getMatcherInfo = (): types.emptyAction => {
 };
 
 export const cancelOrder = (orderId: string): types.action<string> => {
-  deleteOrderSocket(orderId);
   return {
-    type: "matcher/cancelOrder/deprecated",
+    type: "matcher/cancelOrder",
     payload: orderId,
   };
 };
 
 export const cancelAllOrders = (username: string): types.action<string> => {
-  deleteAllOrderSocket(username);
   return {
-    type: "matcher/cancelAllOrders/deprecated",
+    type: "matcher/cancelAllOrders",
     payload: username,
   };
 };

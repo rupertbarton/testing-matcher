@@ -3,9 +3,9 @@ import createSagaMiddleware from "redux-saga";
 import matcherReducer from "../reducer/matcherSlice";
 import userReducer from "../reducer/userSlice";
 import settingsReducer from "src/reducer/settingsSlice";
-//import rootSaga from "./sagas/sagas";
+import rootSaga from "./sagas/sagas";
 
-//const sagaMiddleware = createSagaMiddleware();
+const sagaMiddleware = createSagaMiddleware();
 
 export const store = configureStore({
   reducer: {
@@ -13,10 +13,10 @@ export const store = configureStore({
     user: userReducer,
     settings: settingsReducer,
   },
-  //middleware: [...getDefaultMiddleware({ thunk: false }), sagaMiddleware],
+  middleware: [...getDefaultMiddleware({ thunk: false }), sagaMiddleware],
 });
 
-//sagaMiddleware.run(rootSaga);
+sagaMiddleware.run(rootSaga);
 
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;

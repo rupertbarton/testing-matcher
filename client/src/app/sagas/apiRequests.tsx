@@ -1,21 +1,42 @@
+import { useSelector } from "react-redux";
 import type * as types from "src/types";
+import { selectUser } from "../selectors";
+import { store } from "../store";
+const port = 8080;
 
 export async function fetchGetOrders(username: string) {
-  return fetch("http://localhost:3001/user/" + username + "/orders", {}).then(
-    async (response) => {
-      if (response.status !== 200) {
-        const err = await response.text();
-        throw new Error(err);
-      }
-      return response.json();
+  const userState: types.userState = store.getState().user;
+  return fetch("http://localhost:" + port + "/user/" + username + "/orders", {
+    headers: { token: userState.currentToken.toString() },
+  }).then(async (response) => {
+    if (response.status.toString()[0] !== "2") {
+      const err = await response.text();
+      throw new Error(err);
     }
-  );
+    return response.json();
+  });
+}
+
+export async function fetchLogin(username: string, password: string) {
+  return fetch("http://localhost:" + port + "/user/" + username, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: password,
+  }).then(async (response) => {
+    if (response.status.toString()[0] !== "2") {
+      const err = await response.text();
+      throw new Error(err);
+    }
+    return response.json();
+  });
 }
 
 export async function fetchGetAccount(username: string) {
-  return fetch("http://localhost:3001/user/" + username, {}).then(
+  return fetch("http://localhost:" + port + "/user/" + username, {}).then(
     async (response) => {
-      if (response.status !== 200) {
+      if (response.status.toString()[0] !== "2") {
         const err = await response.text();
         throw new Error(err);
       }
@@ -27,17 +48,20 @@ export async function fetchGetAccount(username: string) {
 export async function fetchPostOrder(
   order: types.order
 ): Promise<types.response> {
-  return fetch("http://localhost:3001/user/" + order.username + "/order", {
+  const userState: types.userState = store.getState().user;
+  return fetch("http://localhost:" + port + "/order", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      token: userState.currentToken.toString(),
     },
     body: JSON.stringify(order),
   }).then(async (response) => {
-    if (response.status !== 201) {
+    if (response.status.toString()[0] !== "2") {
       const err = await response.text();
       throw new Error(err);
     }
+    console.log(response.json);
     return response.json();
   });
 }
@@ -47,7 +71,7 @@ export async function fetchDeleteOrder(
   orderId: string
 ): Promise<types.response> {
   return fetch(
-    "http://localhost:3001/user/" + username + "/orders/" + orderId,
+    "http://localhost:" + port + "/user/" + username + "/orders/" + orderId,
     {
       method: "DELETE",
       headers: {
@@ -55,7 +79,7 @@ export async function fetchDeleteOrder(
       },
     }
   ).then(async (response) => {
-    if (response.status !== 200) {
+    if (response.status.toString()[0] !== "2") {
       const err = await response.text();
       throw new Error(err);
     }
@@ -67,13 +91,13 @@ export async function fetchDeleteOrder(
 export async function fetchDeleteAllOrders(
   username: string
 ): Promise<types.response> {
-  return fetch("http://localhost:3001/user/" + username + "/orders/", {
+  return fetch("http://localhost:" + port + "/user/" + username + "/orders/", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
   }).then(async (response) => {
-    if (response.status !== 200) {
+    if (response.status.toString()[0] !== "2") {
       const err = await response.text();
       throw new Error(err);
     }
@@ -88,7 +112,7 @@ export async function fetchPutTopUp(
   amount: number
 ): Promise<types.response> {
   return fetch(
-    "http://localhost:3001/user/" + username + "/deposit/" + currency,
+    "http://localhost:" + port + "/user/" + username + "/deposit/" + currency,
     {
       method: "PUT",
       headers: {
@@ -97,7 +121,7 @@ export async function fetchPutTopUp(
       body: JSON.stringify({ amount }),
     }
   ).then(async (response) => {
-    if (response.status !== 200) {
+    if (response.status.toString()[0] !== "2") {
       const err = await response.text();
       throw new Error(err);
     }
@@ -112,7 +136,7 @@ export async function fetchPutWithdraw(
   amount: number
 ): Promise<types.response> {
   return fetch(
-    "http://localhost:3001/user/" + username + "/withdraw/" + currency,
+    "http://localhost:" + port + "/user/" + username + "/withdraw/" + currency,
     {
       method: "PUT",
       headers: {
@@ -121,7 +145,7 @@ export async function fetchPutWithdraw(
       body: JSON.stringify({ amount }),
     }
   ).then(async (response) => {
-    if (response.status !== 200) {
+    if (response.status.toString()[0] !== "2") {
       const err = await response.text();
       throw new Error(err);
     }

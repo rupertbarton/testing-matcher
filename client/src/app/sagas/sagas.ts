@@ -5,6 +5,7 @@ import * as settingsActions from "src/reducer/settingsActions";
 import type * as types from "src/types";
 import { selectMatcher, selectUser } from "../selectors";
 import {
+  fetchLogin,
   fetchPostOrder,
   fetchDeleteOrder,
   fetchDeleteAllOrders,
@@ -13,6 +14,8 @@ import {
   fetchPutTopUp,
   fetchPutWithdraw,
 } from "./apiRequests";
+import AggregatedOrderBook from "src/parts/orderBooks/aggregatedOB/AggregatedOrderBook";
+import { decodeResponse } from "./encoder-decoder";
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -20,13 +23,43 @@ const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
   fetch("hhtp://localhost:3001/orders");
 }*/
 
+function* loginAsync(action: types.action<[string, string]>) {
+  yield put(settingsActions.setCurrentError(""));
+  try {
+    const username = action.payload[0];
+    const token: number = yield fetchLogin(username, action.payload[1]);
+    yield put(userActions.setUser(username));
+    yield put(userActions.setToken(token));
+    console.log("token", token);
+    const rawresponse: types.incomingresponse = yield fetchGetOrders(username);
+    console.log(rawresponse);
+    const response = decodeResponse(rawresponse);
+    console.log("response: ", response);
+    yield put(
+      matcherActions.setAggregatedOrderBook(response.aggregatedOrderBook)
+    );
+    yield put(matcherActions.setPersonalOrderBook(response.personalOrderBook));
+    yield put(userActions.setBalance(response.userData));
+    yield put(matcherActions.setTradeHistory(response.tradeHistory));
+  } catch (err) {
+    console.log(err);
+    yield put(settingsActions.setCurrentError((err as Error).message));
+    return null;
+  }
+}
+
+export function* watchLoginAsync() {
+  yield takeEvery("user/login", loginAsync);
+}
+
 function* getOrdersAsync() {
   yield put(settingsActions.setCurrentError(""));
   try {
     const userState: types.userState = yield select(selectUser);
-    const response: types.response = yield fetchGetOrders(
+    const rawresponse: types.incomingresponse = yield fetchGetOrders(
       userState.currentUser
     );
+    const response = decodeResponse(rawresponse);
     console.log(response);
     yield put(
       matcherActions.setAggregatedOrderBook(response.aggregatedOrderBook)
@@ -45,7 +78,7 @@ export function* watchGetOrdersAsync() {
   yield takeEvery("matcher/getMatcherInfo", getOrdersAsync);
 }
 
-/*function* setUserAsync(action: types.action<string>) {
+function* setUserAsync(action: types.action<string>) {
   yield put(settingsActions.setCurrentError(""));
   try {
     const response: types.response = yield fetchGetAccount(action.payload);
@@ -61,12 +94,19 @@ export function* watchGetOrdersAsync() {
 
 export function* watchSetUserAsync() {
   yield takeEvery("user/setUser", setUserAsync);
-}*/
+}
 
 function* addOrderAsync(action: types.action<types.order>) {
   yield put(settingsActions.setCurrentError(""));
+  console.log("adding order");
   try {
-    const response: types.response = yield fetchPostOrder(action.payload);
+    let order = action.payload;
+    order.price *= 100;
+    order.volume *= 100;
+    const rawresponse: types.incomingresponse = yield fetchPostOrder(
+      action.payload
+    );
+    const response = decodeResponse(rawresponse);
     yield put(
       matcherActions.setAggregatedOrderBook(response.aggregatedOrderBook)
     );
@@ -181,6 +221,7 @@ export function* watchWithdrawAsync() {
 
 export default function* rootSaga() {
   yield all([
+    watchLoginAsync(),
     watchAddOrderAsync(),
     watchCancelOrderAsync(),
     watchGetOrdersAsync(),
@@ -189,4 +230,5 @@ export default function* rootSaga() {
     watchTopUpAsync(),
     watchWithdrawAsync(),
   ]);
+  // code after all-effect
 }

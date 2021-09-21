@@ -88,6 +88,13 @@ export interface packagedTradeHistory {
   tradeHistory: trade[];
 }
 
+export interface incomingresponse {
+  aggregatedOrderBook: aggregatedOB;
+  personalOrderBook: personalOB;
+  tradeHistory: trade[];
+  userData: { gbp: number; btc: number };
+}
+
 export interface response {
   aggregatedOrderBook: aggregatedOB;
   personalOrderBook: personalOB;

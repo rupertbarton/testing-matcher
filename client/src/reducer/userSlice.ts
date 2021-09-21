@@ -3,7 +3,7 @@ import type * as types from "../types";
 
 const initialState: types.userState = {
   userList: ["Andrea", "Bob", "Catherine", "Doug", "Elliott"],
-  currentUser: "Andrea",
+  currentUser: "",
   userBalance: { GBP: 0, BTC: 0 },
   currentToken: 0,
 };

@@ -21,6 +21,25 @@
   padding-bottom: 0.5vh;
 }
 
+.loginForm {
+  text-align: centre;
+  margin: 0%;
+  margin-top: 1vh;
+  padding: 0%;
+  padding-right: 1vw;
+  border-bottom: 3px double honeydew;
+}
+
+.loginForm button {
+  font-size: inherit;
+  font-family: inherit;
+  background-color: black;
+  color: inherit;
+  height: 1.7rem;
+  border: 3px double rgba(240, 255, 240, 0.9);
+  margin-left: 1vh;
+}
+
 .buttons button {
   font-size: inherit;
   font-family: inherit;
