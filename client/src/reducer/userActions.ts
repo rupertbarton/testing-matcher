@@ -14,8 +14,7 @@ export const login = (username: string, password: string = "password") => {
   };
 };
 
-export const setToken = (token: Number) => {
-  console.log("setToken: ", token);
+export const setToken = (token: string) => {
   return {
     type: "user/setToken",
     payload: token,

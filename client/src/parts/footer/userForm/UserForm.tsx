@@ -34,7 +34,7 @@ const UserForm = () => {
 
   const [currency, setCurrency] = useState<types.currency>("GBP");
   const [amount, setAmount] = useState(0);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("Andrea");
   const [password, setPassword] = useState("");
 
   const handleAmountChange = (e: any) => {

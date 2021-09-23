@@ -67,7 +67,7 @@ export interface userState {
   userList: string[];
   currentUser: string;
   userBalance: balances;
-  currentToken: Number;
+  currentToken: string;
 }
 
 export interface action<payloadType> {

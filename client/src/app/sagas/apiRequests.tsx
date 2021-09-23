@@ -6,8 +6,8 @@ const port = 8080;
 
 export async function fetchGetOrders(username: string) {
   const userState: types.userState = store.getState().user;
-  return fetch("http://localhost:" + port + "/user/" + username + "/orders", {
-    headers: { token: userState.currentToken.toString() },
+  return fetch("http://localhost:" + port + "/user/orders", {
+    headers: { Authorization: userState.currentToken },
   }).then(async (response) => {
     if (response.status.toString()[0] !== "2") {
       const err = await response.text();
@@ -17,19 +17,35 @@ export async function fetchGetOrders(username: string) {
   });
 }
 
+// export async function fetchLogin(username: string, password: string) {
+//   return fetch("http://localhost:" + port + "/user/" + username, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: password,
+//   }).then(async (response) => {
+//     if (response.status.toString()[0] !== "2") {
+//       const err = await response.text();
+//       throw new Error(err);
+//     }
+//     return response.json();
+//   });
+// }
+
 export async function fetchLogin(username: string, password: string) {
-  return fetch("http://localhost:" + port + "/user/" + username, {
+  return fetch("http://localhost:" + port + "/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: password,
+    body: JSON.stringify({ username: username, password: password }),
   }).then(async (response) => {
     if (response.status.toString()[0] !== "2") {
       const err = await response.text();
       throw new Error(err);
     }
-    return response.json();
+    return response.text();
   });
 }
 

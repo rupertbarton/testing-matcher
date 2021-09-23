@@ -27,7 +27,7 @@ function* loginAsync(action: types.action<[string, string]>) {
   yield put(settingsActions.setCurrentError(""));
   try {
     const username = action.payload[0];
-    const token: number = yield fetchLogin(username, action.payload[1]);
+    const token: string = yield fetchLogin(username, action.payload[1]);
     yield put(userActions.setUser(username));
     yield put(userActions.setToken(token));
     console.log("token", token);

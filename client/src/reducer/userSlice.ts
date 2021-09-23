@@ -5,7 +5,7 @@ const initialState: types.userState = {
   userList: ["Andrea", "Bob", "Catherine", "Doug", "Elliott"],
   currentUser: "",
   userBalance: { GBP: 0, BTC: 0 },
-  currentToken: 0,
+  currentToken: "no token",
 };
 
 const userSlice = createSlice({
@@ -15,7 +15,7 @@ const userSlice = createSlice({
     setUser(state, action: types.action<string>) {
       state.currentUser = action.payload;
     },
-    setToken(state, action: types.action<Number>) {
+    setToken(state, action: types.action<string>) {
       state.currentToken = action.payload;
     },
     setBalance(state, action: types.action<types.userData>) {
