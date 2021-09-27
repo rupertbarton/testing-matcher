@@ -210,7 +210,7 @@ export const CandleChart = (props) => {
       .style("font-weight", "normal")
       .style("text-anchor", "left")
       .style("fill", "#f0fff0")
-      .html((d) => `Open: £${d.open}`);
+      .html((d) => `Open: £${Math.round(d.open * 100) / 100}`);
     //.html((d) => `<b>Open:</b>${d.open}</br><b>Close:</b>${d.close}</br>`); Close: £${d.close}
 
     candletip
@@ -219,7 +219,7 @@ export const CandleChart = (props) => {
       .attr("dy", "2.4em")
       .style("text-anchor", "left")
       .style("fill", "#f0fff0")
-      .html((d) => `Close: £${d.close}`);
+      .html((d) => `Close: £${Math.round(d.close * 100) / 100}`);
 
     candletip
       .append("text")
@@ -227,7 +227,7 @@ export const CandleChart = (props) => {
       .attr("dy", "3.6em")
       .style("text-anchor", "left")
       .style("fill", "#f0fff0")
-      .html((d) => `High: £${d.high}`);
+      .html((d) => `High: £${Math.round(d.high * 100) / 100}`);
 
     candletip
       .append("text")
@@ -235,7 +235,7 @@ export const CandleChart = (props) => {
       .attr("dy", "4.8em")
       .style("text-anchor", "left")
       .style("fill", "#f0fff0")
-      .html((d) => `Low: £${d.low}`);
+      .html((d) => `Low: £${Math.round(d.low * 100) / 100}`);
 
     candletip.raise();
 

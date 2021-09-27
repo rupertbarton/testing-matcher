@@ -48,9 +48,9 @@ const OrderForm = () => {
       price: Number(price),
       volume: Number(volume),
       timestamp: new Date().toISOString(),
-      id: "",
+      id: 0,
     };
-    newOrder.id = newOrder.username + newOrder.timestamp;
+    //newOrder.id = newOrder.username + newOrder.timestamp;
     dispatch(matcherActions.addOrder(newOrder));
     setPrice(0);
     setVolume(0);

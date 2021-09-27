@@ -7,7 +7,7 @@ export interface order {
   volume: number;
   price: number;
   timestamp: string;
-  id: string;
+  id: number;
 }
 
 export interface trade {
@@ -16,7 +16,7 @@ export interface trade {
   volume: number;
   price: number;
   timestamp: string;
-  id: string;
+  id: number;
 }
 
 export type orderkey =

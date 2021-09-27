@@ -124,14 +124,15 @@ export function* watchAddOrderAsync() {
   yield takeEvery("matcher/addOrder", addOrderAsync);
 }
 
-function* cancelOrderAsync(action: types.action<string>) {
+function* cancelOrderAsync(action: types.action<number>) {
   yield put(settingsActions.setCurrentError(""));
   try {
     const userState: types.userState = yield select(selectUser);
-    const response: types.response = yield fetchDeleteOrder(
+    const rawresponse: types.incomingresponse = yield fetchDeleteOrder(
       userState.currentUser,
       action.payload
     );
+    const response = decodeResponse(rawresponse);
     console.log("response:", response);
     yield put(
       matcherActions.setAggregatedOrderBook(response.aggregatedOrderBook)
@@ -180,12 +181,18 @@ function* topUpAsync(action: types.action<[types.currency, number]>) {
   try {
     console.log(action.payload);
     const userState: types.userState = yield select(selectUser);
-    const response: types.userData = yield fetchPutTopUp(
+    const rawresponse: types.incomingresponse = yield fetchPutTopUp(
       userState.currentUser,
       action.payload[0],
       action.payload[1]
     );
-    yield put(userActions.setBalance(response));
+    const response = decodeResponse(rawresponse);
+    yield put(
+      matcherActions.setAggregatedOrderBook(response.aggregatedOrderBook)
+    );
+    yield put(matcherActions.setPersonalOrderBook(response.personalOrderBook));
+    yield put(matcherActions.setTradeHistory(response.tradeHistory));
+    yield put(userActions.setBalance(response.userData));
   } catch (err) {
     console.log(err);
     yield put(settingsActions.setCurrentError((err as Error).message));

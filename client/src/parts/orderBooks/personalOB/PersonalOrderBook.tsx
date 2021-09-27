@@ -22,7 +22,7 @@ const PersonalOrderBook = () => {
     return (
       <ListItem
         key={order.id}
-        data={[order.price, order.volume, order.action]}
+        data={[Math.round(order.price * 100) / 100, order.volume, order.action]}
         onClick={() => {
           dispatch(settingsActions.setCurrentObject(order));
         }}
@@ -37,7 +37,7 @@ const PersonalOrderBook = () => {
     return (
       <ListItem
         key={order.id}
-        data={[order.price, order.volume, order.action]}
+        data={[Math.round(order.price * 100) / 100, order.volume, order.action]}
         onDelete={() => {
           dispatch(matcherActions.cancelOrder(order.id));
         }}

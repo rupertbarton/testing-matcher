@@ -3,9 +3,6 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { autotrader } from "./autotrader";
-
-autotrader(5);
 
 ReactDOM.render(
   <React.StrictMode>

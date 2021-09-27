@@ -28,7 +28,7 @@ const TradeHistory = () => {
     return (
       <ListItem
         key={trade.id}
-        data={[trade.volume, trade.price]}
+        data={[trade.volume, Math.round(trade.price * 100) / 100]}
         colors={colors}
         onClick={() => {
           dispatch(setCurrentObject(trade));

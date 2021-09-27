@@ -69,7 +69,7 @@ export async function fetchPostOrder(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      token: userState.currentToken.toString(),
+      Authorization: userState.currentToken,
     },
     body: JSON.stringify(order),
   }).then(async (response) => {
@@ -84,17 +84,16 @@ export async function fetchPostOrder(
 
 export async function fetchDeleteOrder(
   username: string,
-  orderId: string
+  orderId: number
 ): Promise<types.response> {
-  return fetch(
-    "http://localhost:" + port + "/user/" + username + "/orders/" + orderId,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  ).then(async (response) => {
+  const userState: types.userState = store.getState().user;
+  return fetch("http://localhost:" + port + "/order/" + orderId, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: userState.currentToken,
+    },
+  }).then(async (response) => {
     if (response.status.toString()[0] !== "2") {
       const err = await response.text();
       throw new Error(err);
@@ -127,14 +126,16 @@ export async function fetchPutTopUp(
   currency: types.currency,
   amount: number
 ): Promise<types.response> {
+  const userState: types.userState = store.getState().user;
   return fetch(
     "http://localhost:" + port + "/user/" + username + "/deposit/" + currency,
     {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: userState.currentToken,
       },
-      body: JSON.stringify({ amount }),
+      body: amount.toString(),
     }
   ).then(async (response) => {
     if (response.status.toString()[0] !== "2") {
