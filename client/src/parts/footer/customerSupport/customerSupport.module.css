@@ -8,14 +8,47 @@
   margin: 1%;
 }
 
+.topRow {
+  display: flex;
+  flex-direction: row-reverse;
+  color: rgb(255, 91, 91);
+  margin: 0px;
+}
+
+.topRow button {
+  margin: 0px;
+}
+
 .orderForm button {
-  font-size: inherit;
-  font-family: inherit;
   background-color: black;
   color: inherit;
-  height: 1.7rem;
+  height: 1.4rem;
   border: 3px double rgba(240, 255, 240, 0.9);
   margin-left: 1vh;
+}
+
+.userMessage {
+  text-align: right;
+}
+
+.chatInput {
+  width: 90%;
+}
+
+.chatInput input {
+  width: 15vw;
+}
+
+.feed {
+  justify-items: end;
+  height: 80%;
+  margin: 1%;
+  padding: 1%;
+  border: solid 1px honeydew;
+}
+
+.serverMessage {
+  text-align: left;
 }
 
 .orderForm button:hover {
@@ -23,21 +56,16 @@
   background: radial-gradient(rgb(0, 0, 0) 30%, rgb(68, 68, 68) 90%);
 }
 
-.orderForm button:active {
-  border-color: honeydew;
-  background: radial-gradient(rgb(133, 129, 129) 30%, rgb(68, 68, 68) 90%);
-}
-
 .orderForm input {
   font-family: inherit;
-  font-size: inherit;
+  font-size: 1rem;
 }
 
 .orderForm li {
   list-style: none;
   display: flex;
   flex-direction: row;
-  padding-bottom: 0.5vh;
+  padding-bottom: 5px;
 }
 
 .orderForm .fieldName {
@@ -49,10 +77,10 @@
 
 .orderForm input {
   width: 40%;
-  font-size: inherit;
 }
 
-.orderForm h3 {
+h3 {
+  padding: 0px;
   margin-top: 0px;
   margin-bottom: 5px;
 }

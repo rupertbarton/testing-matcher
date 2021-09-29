@@ -30,7 +30,7 @@ const render = (
         userBalance: { GBP: 100, BTC: 200 },
         currentToken: "no token",
       },
-      settings: { currentObject: undefined, currentError: "" },
+      settings: { currentObject: undefined, currentError: "", messages: [] },
     },
   }
 ) => {

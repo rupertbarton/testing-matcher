@@ -53,3 +53,7 @@
   border-color: honeydew;
   background: radial-gradient(rgb(0, 0, 0) 30%, rgb(68, 68, 68) 90%);
 }
+
+.personalOrderBook button:active {
+  background: rgb(68, 68, 68);
+}

@@ -11,6 +11,7 @@ export async function fetchGetOrders(username: string) {
   }).then(async (response) => {
     if (response.status.toString()[0] !== "2") {
       const err = await response.text();
+      console.log(response);
       throw new Error(err);
     }
     return response.json();
@@ -59,6 +60,16 @@ export async function fetchGetAccount(username: string) {
       return response.json();
     }
   );
+}
+
+export async function fetchPostUser(user: types.user) {
+  return fetch("http://localhost:" + port + "/user", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(user),
+  });
 }
 
 export async function fetchPostOrder(

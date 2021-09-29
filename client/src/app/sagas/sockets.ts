@@ -1,18 +1,31 @@
-// import * as socketclient from "socket.io-client";
-// import { useSelector, useDispatch } from "react-redux";
-// import { store } from "../store";
-// import { selectUser } from "../selectors";
+import * as socketclient from "socket.io-client";
+import { useSelector, useDispatch } from "react-redux";
+import { store } from "../store";
+import { selectUser } from "../selectors";
 // import * as matcherActions from "src/reducer/matcherActions";
 // import * as userActions from "src/reducer/userActions";
-// import * as settingsActions from "src/reducer/settingsActions";
+import * as settingsActions from "src/reducer/settingsActions";
 // import type * as types from "src/types";
 // import TradeHistory from "src/parts/tradeHistory/TradeHistory";
 
-// const dispatch = store.dispatch;
+const dispatch = store.dispatch;
 // const userState = store.getState().user; //useSelector(selectUser);
 // const currentUser = userState.currentUser;
 
-// const socket = socketclient.connect("http://localhost:4000/");
+const socket = socketclient.connect("http://localhost:4000/");
+
+export const sendMessage = (text: string) => {
+  console.log(text);
+  socket.emit("userMessage", text);
+};
+
+socket.on("userMessage", (newMessage: string) => {
+  dispatch(settingsActions.addMessage("u" + newMessage));
+});
+
+socket.on("serverMessage", (newMessage: string) => {
+  dispatch(settingsActions.addMessage("s" + newMessage));
+});
 
 // export const initialiseSocket = () => {
 //   console.log("initialising");

@@ -4,6 +4,7 @@ import type * as types from "../types";
 const initialState: types.settingsState = {
   currentObject: undefined,
   currentError: "",
+  messages: [],
 };
 
 /*export const addOrder = createAsyncThunk(
@@ -22,6 +23,12 @@ const settingsSlice = createSlice({
     },
     setCurrentError(state, action: types.action<string>) {
       state.currentError = action.payload;
+    },
+    addMessage(state, action: types.action<string>) {
+      state.messages = [...state.messages, action.payload];
+    },
+    resetMessage(state, action: types.action<boolean>) {
+      state.messages = [];
     },
   },
 });

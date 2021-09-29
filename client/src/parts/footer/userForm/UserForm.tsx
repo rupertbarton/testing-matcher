@@ -64,6 +64,9 @@ const UserForm = () => {
     <div className={formStyle.userForm}>
       <ul className={formStyle.loginForm}>
         <li>
+          <button onClick={() => dispatch(matcherActions.getMatcherInfo())}>
+            {"\u27f3"}
+          </button>
           <div id={"userField"} className={formStyle.fieldName}>
             User:{" "}
           </div>

@@ -40,6 +40,15 @@
   margin-left: 1vh;
 }
 
+.loginForm button:hover {
+  border-color: honeydew;
+  background: radial-gradient(rgb(0, 0, 0) 30%, rgb(68, 68, 68) 90%);
+}
+
+.loginForm button:active {
+  background: rgb(68, 68, 68);
+}
+
 .buttons button {
   font-size: inherit;
   font-family: inherit;
@@ -53,6 +62,10 @@
 .buttons button:hover {
   border-color: honeydew;
   background: radial-gradient(rgb(0, 0, 0) 30%, rgb(68, 68, 68) 90%);
+}
+
+.buttons button:active {
+  background: rgb(68, 68, 68);
 }
 
 .userForm .fieldName {

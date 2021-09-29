@@ -5,6 +5,7 @@ import * as settingsActions from "src/reducer/settingsActions";
 import type * as types from "src/types";
 import { selectMatcher, selectUser } from "../selectors";
 import {
+  fetchPostUser,
   fetchLogin,
   fetchPostOrder,
   fetchDeleteOrder,
@@ -23,13 +24,28 @@ const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
   fetch("hhtp://localhost:3001/orders");
 }*/
 
+function* initialiseAsync(action: types.action<string>) {
+  const user: types.user = {
+    username: action.payload,
+    password: "password",
+    gbp: 20000000,
+    btc: 200000,
+  };
+  yield fetchPostUser(user);
+}
+export function* watchInitAsync() {
+  yield takeEvery("settings/initialise", initialiseAsync);
+}
+
 function* loginAsync(action: types.action<[string, string]>) {
   yield put(settingsActions.setCurrentError(""));
   try {
     const username = action.payload[0];
     const token: string = yield fetchLogin(username, action.payload[1]);
-    yield put(userActions.setUser(username));
-    yield put(userActions.setToken(token));
+    if (token !== "access denied") {
+      yield put(userActions.setUser(username));
+      yield put(userActions.setToken(token));
+    }
     console.log("token", token);
     const rawresponse: types.incomingresponse = yield fetchGetOrders(username);
     console.log(rawresponse);
@@ -228,6 +244,7 @@ export function* watchWithdrawAsync() {
 
 export default function* rootSaga() {
   yield all([
+    watchInitAsync(),
     watchLoginAsync(),
     watchAddOrderAsync(),
     watchCancelOrderAsync(),

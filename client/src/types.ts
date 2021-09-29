@@ -40,6 +40,7 @@ export type currentObject = order | trade | undefined;
 export interface settingsState {
   currentObject: currentObject;
   currentError: string;
+  messages: string[];
 }
 
 export interface aggregatedOB {
@@ -77,6 +78,13 @@ export interface action<payloadType> {
 
 export interface emptyAction {
   type: string;
+}
+
+export interface user {
+  username: string;
+  password: string;
+  gbp: number;
+  btc: number;
 }
 
 export interface userData {
