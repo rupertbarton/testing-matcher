@@ -1,3 +1,7 @@
+# Autotrader bot
+
+After starting the server and client modules, you can start this app on a different port. It will automatically place trades between several of the default users.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
